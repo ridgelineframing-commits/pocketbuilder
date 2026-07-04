@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1b1d21">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PocketBuilder">
+<title>PocketBuilder</title>
+<meta name="description" content="PocketBuilder - builder tape calculator: feet-inch fractions, area, volume, roof and stair solver, board feet.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+  :root{
+    --bg1:#3b3f47; --bg2:#191b1f;
+    --shell:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#3a3f47,#20242a);
+    --edge:#0c0d10;
+    --chrome:#22262b; --line:#3a3f47;
+    --key:#3a4047; --keyfn:#545b64; --keytxt:#eef0f2; --keysub:#aeb4bd;
+    --accent:#b2241a; --accent2:#d65a4c;
+    --opk1:#5a4e4b; --opk2:#3f3633; --optxt:#ffffff;
+    --paper:#ffffff; --paperline:#e1e1e1; --papermargin:#f0c4bd; --papertxt:#1d1f22; --papermut:#a6a09a;
+    --kh:clamp(26px,4.7vh,44px); --kfs:clamp(12px,3.3vw,17px); --kfs-s:clamp(9px,2.3vw,12px);
+    --kfs-op:clamp(15px,4vw,21px); --kfs-eq:clamp(16px,4.4vw,23px); --gap:clamp(3px,1vw,6px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+  html,body{margin:0;height:100%;width:100%;overflow:hidden;background:radial-gradient(1100px 760px at 50% -8%,var(--bg1),var(--bg2)) fixed;color:var(--keytxt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overscroll-behavior:none;
+    display:flex;align-items:center;justify-content:center;}
+
+  #device{position:relative;flex:0 0 auto;width:min(100vw,432px);height:100dvh;max-height:940px;margin:auto;display:flex;flex-direction:column;min-width:0;
+    background:var(--shell);background-position:center;
+    border:1px solid var(--edge);border-radius:30px;padding:20px 16px 24px;
+    box-shadow:0 34px 80px rgba(0,0,0,.62), 0 8px 18px rgba(0,0,0,.45),
+      inset 0 3px 1px rgba(255,255,255,.22), inset 0 -6px 16px rgba(0,0,0,.6), inset 0 0 0 1px rgba(0,0,0,.28);}
+  .screw{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#dfe3e8,#34373c);box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.7);}
+  .screw.s1{top:9px;left:9px;}.screw.s2{top:9px;right:9px;}.screw.s3{bottom:9px;left:9px;}.screw.s4{bottom:9px;right:9px;}
+
+  #app{position:relative;display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;width:100%;border-radius:12px;overflow:hidden;background:var(--chrome);
+    box-shadow:inset 0 0 0 2px var(--edge), inset 0 5px 12px rgba(0,0,0,.65), 0 0 0 3px rgba(0,0,0,.32), 0 2px 1px rgba(255,255,255,.12);}
+
+  header{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--chrome);border-bottom:1px solid var(--line);min-width:0;}
+  .namebtn{background:none;border:none;color:var(--keytxt);font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:16px;letter-spacing:.4px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:2px 2px;white-space:nowrap;}
+  .namebtn .caret{font-size:10px;color:var(--keysub);}
+  header .sp{flex:1;}
+  .memchip{font-size:11px;font-weight:700;color:var(--keysub);background:color-mix(in srgb,var(--keysub) 12%,transparent);border:1px solid color-mix(in srgb,var(--keysub) 34%,transparent);border-radius:7px;padding:3px 8px;display:none;}
+  .hbtn{background:var(--keyfn);border:1px solid var(--line);color:var(--keytxt);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer;}
+  .hbtn:active{filter:brightness(1.2);}
+
+  .taparea{position:relative;flex:1;min-height:0;min-width:0;display:flex;flex-direction:column;}
+  .tapewrap{flex:1;min-height:0;min-width:0;overflow-y:scroll;overflow-x:hidden;scrollbar-gutter:stable;padding:0;background-color:var(--paper);-webkit-overflow-scrolling:touch;
+    background-image:linear-gradient(90deg,transparent 0 40px,var(--papermargin) 40px 42px,transparent 42px),
+      repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--paperline) 31px,var(--paperline) 32px);
+    background-attachment:local;}
+  .tline{display:grid;grid-template-columns:20px minmax(0,1fr) minmax(0,auto);gap:6px;align-items:flex-end;min-height:32px;padding:3px 12px 5px 50px;cursor:pointer;font-variant-numeric:tabular-nums;width:100%;max-width:100%;}
+  .tline.sel{background:color-mix(in srgb,var(--papertxt) 10%,transparent);}
+  .tline .op{color:var(--papertxt);font-weight:700;text-align:right;font-size:14px;line-height:1;min-width:0;}
+  .tline .val{font-size:18px;font-weight:600;color:var(--papertxt);line-height:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .tline .note{font-size:13.5px;color:var(--papermut);font-style:italic;text-align:right;min-width:0;max-width:62%;white-space:normal;overflow-wrap:anywhere;line-height:1.25;}
+  .tline.active{min-height:34px;} .tline.active .val{font-weight:700;font-size:19px;color:var(--papertxt);}
+  .tline.active .op{color:var(--papertxt);}
+  .tline.carry .op{color:var(--papermut);font-size:13px;}
+  .tline.caret .val::after{content:"";display:inline-block;width:2px;height:18px;background:var(--papertxt);margin-left:2px;vertical-align:-3px;animation:bl 1s steps(1) infinite;}
+  @keyframes bl{50%{opacity:0;}}
+  .tline.sep{min-height:32px;} .tline.info{grid-template-columns:20px minmax(0,1fr);} .tline.info .val{font-size:13px;font-weight:500;color:var(--papermut);font-style:italic;white-space:normal;overflow-wrap:anywhere;}
+  .tline.subtotal{cursor:pointer;}
+  .tline.subtotal .val{font-weight:800;color:var(--papertxt);font-size:15px;font-style:normal;white-space:nowrap;font-variant-numeric:tabular-nums;border-top:1px solid var(--papermut);padding-top:3px;}
+  .emptytape{padding:0 14px 0 50px;color:var(--papermut);font-size:13px;line-height:32px;}
+
+  .grandbar{background:var(--chrome);display:flex;align-items:center;gap:10px;padding:5px 12px;border-top:1px solid var(--line);min-width:0;}
+  .grandbar .lab{font-size:10px;color:var(--keysub);text-transform:uppercase;letter-spacing:.8px;font-weight:700;flex:0 0 auto;}
+  .grandbar .gt{flex:1;min-width:0;text-align:right;font-size:21px;font-weight:800;color:var(--keytxt);font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .grandbar .gd{font-size:10px;color:var(--keysub);min-width:48px;flex:0 0 auto;text-align:right;}
+
+  .toppanel{position:absolute;inset:0;z-index:6;display:none;overflow-y:auto;background:var(--paper);padding:9px 11px;} .toppanel.on{display:block;}
+  .tphdr{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--papertxt);text-transform:uppercase;margin-bottom:6px;}
+  .tphint{flex:1;font-size:9px;font-weight:600;color:var(--papermut);text-transform:none;}
+  .tpx{cursor:pointer;color:var(--papermut);font-weight:700;font-size:13px;padding:0 4px;}
+  .tpbtns{display:flex;justify-content:flex-end;margin-top:8px;} .tpbtns .btn{padding:8px 16px;}
+  #roofcells,#staircells{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+  .cc{position:relative;background:#fff;border:1px solid #ddd2cd;border-radius:7px;padding:4px 7px;display:flex;flex-direction:column;min-width:0;}
+  .cc span{font-size:8px;color:#9b958c;text-transform:uppercase;letter-spacing:.5px;} .cc b{font-size:13px;color:#1f2126;font-variant-numeric:tabular-nums;}
+  .cc.ed{cursor:pointer;} .cc.ed::after{content:"\270E";position:absolute;top:3px;right:5px;font-size:8px;color:#b6b0a6;}
+  .lblrow{grid-column:1/-1;font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--papermut);text-transform:uppercase;padding:5px 2px 1px;border-top:1px dashed var(--papermut);margin-top:2px;}
+
+  .pad,.padred,.padmin{background:var(--chrome);padding:var(--gap) var(--gap) calc(var(--gap) + 1px);gap:var(--gap);border-top:1px solid var(--line);}
+  .pad{display:grid;grid-template-columns:repeat(5,1fr);}
+  .padred,.padmin{display:none;grid-template-columns:repeat(4,1fr);}
+  #keys.reduced .pad{display:none;} #keys.reduced .padred{display:grid;}
+  #keys.minimal .pad{display:none;} #keys.minimal .padmin{display:grid;}
+  .key{border:1px solid #00000040;border-radius:9px;height:var(--kh);font-size:var(--kfs);font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;color:var(--keytxt);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--key) 90%,#fff 10%),var(--key));box-shadow:0 1px 1px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.10);}
+  .key:active,.key.hit{filter:brightness(.9);}
+  .key.fn,.key.roof,.key.mem{color:var(--keytxt);font-size:var(--kfs-s);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--keyfn) 90%,#fff 10%),var(--keyfn));}
+  .key.op{color:var(--optxt);font-size:var(--kfs-op);background:linear-gradient(180deg,var(--opk1),var(--opk2));}
+  .key.eq{background:linear-gradient(180deg,#c0392b,#9a1e15);color:#fff;font-size:var(--kfs-eq);border-color:#7a1d15;}
+  .key.ac{color:#fff;background:linear-gradient(180deg,#b6453b,#8d2a22);}
+  .key small{display:block;font-size:clamp(7px,1.8vw,9px);color:var(--keysub);font-weight:600;margin-top:1px;}
+  /* bigger keys for the 4-column minimal pad */
+  .padmin .key{height:clamp(42px,7.4vh,72px);font-size:clamp(17px,5vw,26px);}
+  .padmin .key.fn{font-size:clamp(12px,3.4vw,17px);}
+  .padmin .key.op,.padmin .key.eq{font-size:clamp(20px,5.6vw,30px);}
+  .padred .key{height:clamp(30px,5.4vh,52px);}
+
+  .chin{text-align:center;font-size:8px;letter-spacing:2.5px;color:rgba(255,255,255,.72);font-weight:700;padding:9px 0 1px;text-transform:uppercase;text-shadow:0 1px 2px rgba(0,0,0,.6);}
+
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;} .scrim.on{display:flex;}
+  .sheet{background:#22262b;width:100%;max-width:432px;border-radius:18px 18px 0 0;padding:16px;border-top:3px solid var(--accent);box-shadow:0 -6px 24px rgba(0,0,0,.4);max-height:88vh;overflow-y:auto;}
+  .sheet h4{margin:0 0 12px;font-size:16px;color:var(--keytxt);}
+  .mrow{margin-bottom:14px;} .mrow .ml{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--keysub);font-weight:700;margin-bottom:6px;}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;}
+  .seg button{flex:1;min-width:62px;background:var(--keyfn);border:1px solid var(--line);color:var(--keytxt);border-radius:9px;padding:9px 6px;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .seg button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .swatch{width:34px;height:34px;border-radius:8px;border:2px solid #3a3f47;cursor:pointer;flex:0 0 auto;}
+  .swatch.on{border-color:var(--accent2);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent2) 35%,transparent);}
+  .menubtns{display:flex;gap:10px;margin-top:6px;}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 15px;font-size:14px;font-weight:700;cursor:pointer;flex:1;}
+  .btn.alt{background:var(--keyfn);border:1px solid var(--line);color:var(--keytxt);}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1f2226;color:#eef0f2;border:1px solid var(--accent);padding:9px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .25s;z-index:60;pointer-events:none;max-width:90%;text-align:center;} .toast.on{opacity:1;}
+  .notebar{display:none;align-items:center;gap:8px;padding:6px 10px;background:var(--chrome);border-top:1px solid var(--line);min-width:0;}
+  .notebar.on{display:flex;}
+  .notebar .nlab{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--keysub);flex:0 0 auto;}
+  .notebar input{flex:1;min-width:0;font-size:16px;background:var(--paper);color:var(--papertxt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;-webkit-user-select:text;user-select:text;}
+  .notebar .nbtn{flex:0 0 auto;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="device">
+  <span class="screw s1"></span><span class="screw s2"></span><span class="screw s3"></span><span class="screw s4"></span>
+  <div id="app">
+    <header>
+      <button class="namebtn" id="nameBtn">PocketBuilder <span class="caret">&#9662;</span></button>
+      <div class="sp"></div>
+      <span class="memchip" id="mem"></span>
+      <button class="hbtn" id="kbBtn">abc</button>
+    </header>
+    <div class="taparea">
+      <div class="tapewrap" id="tape"></div>
+      <div class="toppanel" id="roofpop">
+        <div class="tphdr">ROOF<span class="tphint">type a value, then tap a field</span><span class="tpx" id="roofPopClose">&#10005;</span></div>
+        <div id="roofcells"></div>
+        <div class="tpbtns"><button class="btn" id="roofToTape">&rarr; Tape</button></div>
+      </div>
+      <div class="toppanel" id="stairpop">
+        <div class="tphdr">STAIRS<span class="tphint">type a value, then tap a field</span><span class="tpx" id="stairPopClose">&#10005;</span></div>
+        <div id="staircells"></div>
+        <div class="tpbtns"><button class="btn" id="stairToTape">&rarr; Tape</button></div>
+      </div>
+    </div>
+    <div class="grandbar"><span class="lab">Total</span><span class="gt" id="grand">0</span><span class="gd" id="gdim"></span></div>
+    <div class="notebar" id="noteBar"><span class="nlab">Note</span><input id="noteInput" type="text" placeholder="label this line&#8230;" autocomplete="off" autocorrect="off" autocapitalize="sentences"><button class="nbtn" id="noteDone">Done</button></div>
+    <div id="keys">
+      <div class="pad" id="pad">
+        <button class="key roof" data-k="pitch">Pitch</button><button class="key roof" data-k="rise">Rise</button><button class="key roof" data-k="run">Run</button><button class="key roof" data-k="diag">Diag</button><button class="key roof" data-k="hipv">Hip/V</button>
+        <button class="key fn" data-k="bdft">Bd Ft</button><button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button><button class="key fn" data-k="sqrt">&#8730;x</button>
+        <button class="key fn" id="u0" data-k="yd">Yds</button><button class="key fn" id="u1" data-k="feet">Feet</button><button class="key fn" id="u2" data-k="inch">Inch</button><button class="key fn" id="fracKey" data-k="frac">/<small>frac</small></button><button class="key fn" data-k="bk">&#9003;</button>
+        <button class="key mem" data-k="rcl">Rcl</button><button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="div">&divide;</button>
+        <button class="key mem" data-k="mplus">M+</button><button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="mul">&times;</button>
+        <button class="key mem" data-k="mminus">M&minus;</button><button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="sub">&minus;</button>
+        <button class="key ac" data-k="ac">AC</button><button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key" data-k="pm">&plusmn;</button><button class="key op" data-k="add">+</button>
+        <button class="key fn" data-k="pct">%</button><button class="key eq" style="grid-column:span 4" data-k="eq">= <small>sum &amp; space</small></button>
+      </div>
+      <div class="padred" id="padred">
+        <button class="key roof" data-k="pitch">Pitch</button><button class="key roof" data-k="rise">Rise</button><button class="key roof" data-k="run">Run</button><button class="key roof" data-k="diag">Diag</button>
+        <button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button><button class="key fn" data-k="frac">/<small>frac</small></button>
+        <button class="key fn" data-k="feet">Feet</button><button class="key fn" data-k="inch">Inch</button><button class="key fn" data-k="bk">&#9003;</button><button class="key op" data-k="div">&divide;</button>
+        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="mul">&times;</button>
+        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="sub">&minus;</button>
+        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="add">+</button>
+        <button class="key ac" data-k="ac">AC</button><button class="key" data-k="0">0</button><button class="key" data-k="pm">&plusmn;</button><button class="key" data-k="dot">.</button>
+        <button class="key eq" style="grid-column:span 4" data-k="eq">= <small>sum &amp; space</small></button>
+      </div>
+      <div class="padmin" id="padmin">
+        <button class="key ac" data-k="ac">AC</button><button class="key fn" data-k="bk">&#9003;</button><button class="key fn" data-k="frac">/<small>frac</small></button><button class="key op" data-k="div">&divide;</button>
+        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="mul">&times;</button>
+        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="sub">&minus;</button>
+        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="add">+</button>
+        <button class="key fn" data-k="feet">Feet</button><button class="key fn" data-k="inch">Inch</button><button class="key" data-k="pm">&plusmn;</button><button class="key" data-k="dot">.</button>
+        <button class="key" style="grid-column:span 2" data-k="0">0</button><button class="key eq" style="grid-column:span 2" data-k="eq">=</button>
+      </div>
+    </div>
+  </div>
+  <div class="chin">Ridgeline Construction &bull; ft-in / metric</div>
+</div>
+
+<div class="scrim" id="menu"><div class="sheet">
+  <h4>PocketBuilder</h4>
+  <div class="mrow"><div class="ml">Units</div><div class="seg" id="unitSeg"><button data-u="imp">Imperial</button><button data-u="met">Metric</button></div></div>
+  <div class="mrow"><div class="ml">Fraction precision</div><div class="seg" id="fracSeg"><button data-fr="8">1/8</button><button data-fr="16">1/16</button><button data-fr="32">1/32</button></div></div>
+  <div class="mrow"><div class="ml">Keypad</div><div class="seg" id="layoutSeg"><button data-ly="full">Full</button><button data-ly="reduced">Reduced</button><button data-ly="minimal">Minimal</button></div></div>
+  <div class="mrow"><div class="ml">Case</div><div class="seg" id="styleSeg">
+    <button data-st="graphite">Graphite</button><button data-st="steel">Steel</button><button data-st="navy">Navy</button><button data-st="forest">Forest</button><button data-st="sand">Sand</button><button data-st="crimson">Crimson</button>
+    <button data-st="wood">Carpenter</button><button data-st="concrete">Concrete</button><button data-st="circuit">Electric</button><button data-st="water">Plumber</button>
+  </div></div>
+  <div class="mrow"><div class="ml">Paper tape</div><div class="seg" id="paperSeg" style="gap:10px">
+    <span class="swatch" data-pa="white" style="background:#ffffff"></span>
+    <span class="swatch" data-pa="manila" style="background:#ecdcba"></span>
+    <span class="swatch" data-pa="sky" style="background:#e3edfb"></span>
+    <span class="swatch" data-pa="charcoal" style="background:#2b2e33"></span>
+    <span class="swatch" data-pa="navy" style="background:#19233b"></span>
+    <span class="swatch" data-pa="forest" style="background:#1b2a1d"></span>
+  </div></div>
+  <div class="menubtns">
+    <button class="btn alt" id="mNew">New tape</button>
+    <button class="btn" id="mSave">Save .txt</button>
+    <button class="btn alt" id="menuClose">Done</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+
+
+/* BuilderTape engine v5 — roof solver + tape blocks + repeat-equals + unit-basis display */
+(function(global){
+"use strict";
+var SCALAR=0, LINEAR=1, AREA=2, VOLUME=3;
+var IN_PER = { ft:12, in:1, yd:36, m:39.37007874015748, cm:0.3937007874015748, mm:0.03937007874015748 };
+var UP = { in:1, ft:2, yd:3 };
+function pickU(x,y){ if(x&&y) return UP[x]>=UP[y]?x:y; return x||y||null; }
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a||1;}
+function fmtFtIn(inches, denom){
+  denom = denom||16;
+  var sign = inches<0 ? "-" : "";
+  var t = Math.abs(inches);
+  var totalSub = Math.round(t*denom);
+  var whole = Math.floor(totalSub/denom);
+  var num = totalSub - whole*denom;
+  var feet = Math.floor(whole/12);
+  var inch = whole - feet*12;
+  var fracStr = "";
+  if(num>0){ var g=gcd(num,denom); fracStr = (num/g)+"/"+(denom/g); }
+  var parts=[];
+  if(feet>0) parts.push(feet+"'");
+  var inchPart="";
+  if(inch>0) inchPart = inch + (fracStr?(" "+fracStr):"") + '"';
+  else if(fracStr) inchPart = fracStr + '"';
+  else if(feet===0) inchPart = '0"';
+  if(inchPart) parts.push(inchPart);
+  if(parts.length===0) parts.push('0"');
+  return sign + parts.join(" ");
+}
+function fmtInchesOnly(inches, denom){
+  denom = denom||16;
+  var sign = inches<0 ? "-" : "";
+  var t = Math.abs(inches);
+  var totalSub = Math.round(t*denom);
+  var whole = Math.floor(totalSub/denom);
+  var num = totalSub - whole*denom;
+  var fracStr = "";
+  if(num>0){ var g=gcd(num,denom); fracStr = (num/g)+"/"+(denom/g); }
+  var s = whole>0 ? (whole + (fracStr?(" "+fracStr):"")) : (fracStr?fracStr:"0");
+  return sign + s + '"';
+}
+function fmtNum(n,dp){
+  if(!isFinite(n)) return "—";
+  var f = (dp==null)?4:dp;
+  var r = Math.round(n*Math.pow(10,f))/Math.pow(10,f);
+  return r.toLocaleString(undefined,{maximumFractionDigits:f});
+}
+function fmtYards(inches){ return fmtNum(inches/36,3)+" yd"; }
+function fmtVal(v){
+  if(!v) return "0";
+  switch(v.dim){
+    case LINEAR: return fmtFtIn(v.n);
+    case AREA:   return fmtNum(v.n/144)+" sq ft";
+    case VOLUME: return fmtNum(v.n/1728)+" cu ft";
+    default:     return fmtNum(v.n);
+  }
+}
+function fmtMetric(v){
+  if(!v) return "0";
+  switch(v.dim){
+    case LINEAR: { var m=v.n*0.0254; return Math.abs(m)<1 ? fmtNum(v.n*25.4,0)+" mm" : fmtNum(m,3)+" m"; }
+    case AREA:   return fmtNum(v.n*0.00064516,3)+" m²";
+    case VOLUME: return fmtNum(v.n*0.000016387064,3)+" m³";
+    default:     return fmtNum(v.n);
+  }
+}
+function dimName(d){return ["","Linear","Area","Volume"][d]||"Number";}
+function combine(a, op, b){
+  if(op==="+"||op==="-"){
+    var da=a.dim, db=b.dim, dim;
+    if(da===db) dim=da;
+    else if(da===SCALAR) dim=db;
+    else if(db===SCALAR) dim=da;
+    else return {error:"Can't "+(op==="+"?"add":"subtract")+" "+dimName(da)+" and "+dimName(db)};
+    return {n: op==="+" ? a.n+b.n : a.n-b.n, dim:dim, u:pickU(a.u,b.u)};
+  }
+  if(op==="*"){ var sum=a.dim+b.dim; if(sum>VOLUME) return {error:"Result exceeds volume"}; return {n:a.n*b.n, dim:sum, u:pickU(a.u,b.u)}; }
+  if(op==="/"){ if(b.n===0) return {error:"Divide by zero"}; var diff=a.dim-b.dim; if(diff<0) return {error:"Can't divide "+dimName(a.dim)+" by "+dimName(b.dim)}; return {n:a.n/b.n, dim:diff, u:a.u}; }
+  return {error:"bad op"};
+}
+function fold(steps){
+  if(steps.length===0) return {acc:{n:0,dim:SCALAR}, run:[], error:null};
+  var acc=null, run=[], seeded=false, err=null, errAt=-1;
+  for(var i=0;i<steps.length;i++){
+    var s=steps[i];
+    if(s.sep){ run.push(null); acc=null; seeded=false; continue; }
+    if(s.card){ run.push(acc?{n:acc.n,dim:acc.dim,u:acc.u}:null); continue; }
+    if(s.info){ run.push(acc?{n:acc.n,dim:acc.dim,u:acc.u}:null); continue; }
+    if(!seeded){ acc={n:s.val.n,dim:s.val.dim,u:s.val.u}; seeded=true; run.push({n:acc.n,dim:acc.dim,u:acc.u}); continue; }
+    var r=combine(acc, s.op, s.val);
+    if(r.error){ err=r.error; errAt=i; run.push({n:acc.n,dim:acc.dim,u:acc.u}); }
+    else { acc={n:r.n,dim:r.dim,u:r.u}; run.push({n:acc.n,dim:acc.dim,u:acc.u}); }
+  }
+  if(!acc) acc={n:0,dim:SCALAR};
+  return {acc:acc, run:run, error:err, errAt:errAt};
+}
+function newRoof(){ return {rise:null,run:null,diag:null,pitch:null,hip:null,angle:null,given:[]}; }
+function Calc(){ this.steps=[]; this.pendingOp="+"; this.justEval=false; this.memory=null; this.roof=newRoof(); this._newEntry(); }
+Calc.prototype._newEntry=function(){ this.e={ inches:0, dim:SCALAR, buf:"", num:null, hasUnit:false, loaded:null, basis:null }; };
+Calc.prototype.hasInput=function(){ var e=this.e; return e.buf!=="" || e.hasUnit || e.num!=null || e.inches!==0 || !!e.loaded; };
+Calc.prototype.loadValue=function(val){ this._newEntry(); this.e.loaded={n:val.n,dim:val.dim,u:val.u}; this.justEval=false; };
+Calc.prototype.finalizeEntry=function(){
+  var e=this.e, inches=e.inches;
+  if(e.loaded && e.buf==="" && !e.hasUnit && e.num==null) return {n:e.loaded.n, dim:e.loaded.dim, u:e.loaded.u};
+  if(e.num!=null){ var den = e.buf!=="" ? parseFloat(e.buf) : 0; if(den>0) inches += e.num/den; return {n:inches, dim:LINEAR, u:(e.basis||"in")}; }
+  if(e.hasUnit){ if(e.buf!=="") inches += parseFloat(e.buf); return {n:inches, dim:(e.dim===SCALAR?LINEAR:e.dim), u:e.basis}; }
+  if(e.buf!=="") return {n:parseFloat(e.buf), dim:SCALAR};
+  return {n:inches, dim:e.dim, u:e.basis};
+};
+Calc.prototype.current=function(){ return this.hasInput()? this.finalizeEntry() : fold(this.steps).acc; };
+Calc.prototype._startFresh=function(){
+  if(this.justEval){ if(this.steps.length){ this.steps.push({sep:true}); } this.pendingOp="+"; this.justEval=false; this._newEntry(); }
+  else if(this.e.loaded){ this._newEntry(); }
+};
+Calc.prototype.inputDigit=function(d){ this._startFresh(); this.e.buf += d; };
+Calc.prototype.inputDot=function(){ this._startFresh(); if(this.e.buf.indexOf(".")<0) this.e.buf += (this.e.buf===""?"0.":"."); };
+Calc.prototype.inputUnit=function(unit){
+  this._startFresh(); var e=this.e;
+  if(UP[unit] && (!e.basis || UP[unit]>UP[e.basis])) e.basis=unit;   /* remember the largest imperial unit entered */
+  if(e.num!=null){ var den=e.buf!==""?parseFloat(e.buf):0; if(den>0) e.inches+=e.num/den; e.num=null; e.buf=""; e.hasUnit=true; e.dim=LINEAR; return; }
+  var v=e.buf!==""?parseFloat(e.buf):0; e.inches+=v*IN_PER[unit]; e.buf=""; e.hasUnit=true; e.dim=LINEAR;
+};
+Calc.prototype.inputFrac=function(){ if(this.e.buf!==""){ this.e.num=parseFloat(this.e.buf); this.e.buf=""; } else if(this.e.num==null){ this.e.num=0; } };
+Calc.prototype.backspace=function(){ var e=this.e; if(e.loaded){ this._newEntry(); return; } if(e.buf!==""){ e.buf=e.buf.slice(0,-1); } else if(e.num!=null){ e.num=null; } else if(e.hasUnit){ this._newEntry(); } };
+Calc.prototype.clearEntry=function(){ this._newEntry(); };
+Calc.prototype.allClear=function(){ this.steps=[]; this.pendingOp="+"; this.justEval=false; this.roof=newRoof(); this._newEntry(); };
+Calc.prototype._commit=function(op){ if(this.hasInput()){ this.steps.push({op:this.pendingOp, val:this.finalizeEntry(), note:""}); this._newEntry(); } if(op!=null) this.pendingOp=op; };
+Calc.prototype.operator=function(op){
+  if(this.justEval){ this.justEval=false; this.pendingOp=op; return; }
+  var e=this.e;
+  if(e.loaded && e.buf==="" && !e.hasUnit && e.num==null){
+    this.steps=[{op:"+", val:{n:e.loaded.n,dim:e.loaded.dim,u:e.loaded.u}, note:""}];
+    this._newEntry(); this.pendingOp=op; return;
+  }
+  if(!this.hasInput() && this.steps.length>0){ this.pendingOp=op; return; }
+  this._commit(op);
+};
+Calc.prototype.equals=function(){
+  if(this.hasInput()){ this._commit(null); this.justEval=true; return this.result(); }
+  if(this.justEval){
+    var start=0;
+    for(var i=this.steps.length-1;i>=0;i--){ if(this.steps[i].sep){ start=i+1; break; } }
+    var vals=0, li=-1;
+    for(var j=start;j<this.steps.length;j++){ var s=this.steps[j]; if(s.sep||s.info||s.card) continue; vals++; li=j; }
+    if(vals>=2 && li>=0){ var L=this.steps[li]; this.steps.push({op:L.op, val:{n:L.val.n,dim:L.val.dim,u:L.val.u}, note:""}); }
+    return this.result();
+  }
+  this.justEval=true; return this.result();
+};
+Calc.prototype.result=function(){ return fold(this.steps); };
+Calc.prototype.spaceBreak=function(){
+  if(this.hasInput()) this._commit(null);
+  if(this.steps.length===0) return;
+  this.steps.push({sep:true});
+  this.justEval=false; this.pendingOp="+";
+};
+Calc.prototype.percent=function(){
+  if(!this.hasInput()) return;
+  var entry=this.finalizeEntry(), acc=fold(this.steps).acc, op=this.pendingOp;
+  this._newEntry();
+  if((op==="+"||op==="-") && this.steps.length>0){ if(acc.dim!==SCALAR){ this.e.inches=acc.n*entry.n/100; this.e.hasUnit=true; this.e.dim=acc.dim; this.e.basis=acc.u; } else this.e.buf=String(acc.n*entry.n/100); }
+  else { this.e.buf=String(entry.n/100); }
+};
+Calc.prototype.sqrt=function(){ var v=this.current(), n=Math.sqrt(Math.abs(v.n)); var dim = v.dim===AREA?LINEAR : SCALAR; var out={n:n,dim:dim,u:(dim===LINEAR?v.u:undefined)}; this.loadValue(out); return out; };
+Calc.prototype.plusminus=function(){ if(this.e.buf!==""){ this.e.buf = this.e.buf.charAt(0)==="-"?this.e.buf.slice(1):"-"+this.e.buf; } else if(this.e.hasUnit){ this.e.inches=-this.e.inches; } else if(this.e.loaded){ this.e.loaded.n=-this.e.loaded.n; } };
+Calc.prototype.memPlus=function(){ var v=this.current(); if(!this.memory) this.memory={n:v.n,dim:v.dim,u:v.u}; else { var r=combine(this.memory,"+",v); if(!r.error) this.memory=r; } };
+Calc.prototype.memMinus=function(){ var v=this.current(); if(!this.memory) this.memory={n:-v.n,dim:v.dim,u:v.u}; else { var r=combine(this.memory,"-",v); if(!r.error) this.memory=r; } };
+Calc.prototype.recall=function(){ if(!this.memory) return; this.loadValue(this.memory); };
+Calc.prototype.memClear=function(){ this.memory=null; };
+Calc.prototype.convertDisplay=function(unit){
+  var v=this.current();
+  if(v.dim===LINEAR){ switch(unit){ case "ft": return fmtNum(v.n/12)+" ft"; case "in": return fmtNum(v.n)+" in"; case "yd": return fmtNum(v.n/36)+" yd"; case "m": return fmtNum(v.n*0.0254,4)+" m"; case "cm": return fmtNum(v.n*2.54,3)+" cm"; case "mm": return fmtNum(v.n*25.4,1)+" mm"; case "ftin": return fmtFtIn(v.n); } }
+  else if(v.dim===AREA){ switch(unit){ case "yd": return fmtNum(v.n/1296,3)+" sq yd"; case "m": return fmtNum(v.n*0.00064516,3)+" sq m"; case "in": return fmtNum(v.n)+" sq in"; default: return fmtNum(v.n/144)+" sq ft"; } }
+  else if(v.dim===VOLUME){ switch(unit){ case "yd": return fmtNum(v.n/46656,3)+" cu yd"; case "m": return fmtNum(v.n*0.000016387064,3)+" cu m"; default: return fmtNum(v.n/1728)+" cu ft"; } }
+  return fmtNum(v.n);
+};
+
+/* ===== ROOF TRIANGLE SOLVER ===== */
+Calc.prototype.roofSet=function(key, valObj){
+  var R=this.roof, v;
+  if(key==="pitch") v = valObj.n;
+  else v = (valObj.dim===SCALAR ? valObj.n*12 : valObj.n);
+  R[key]=v;
+  R.given = R.given.filter(function(k){return k!==key;});
+  R.given.push(key);
+  if(R.given.length>2) R.given.shift();
+  this._solveRoof();
+  this._newEntry(); this.justEval=false;
+};
+Calc.prototype._solveRoof=function(){
+  var R=this.roof, g=R.given;
+  if(g.length<2) return;
+  var kv={}; kv[g[0]]=R[g[0]]; kv[g[1]]=R[g[1]];
+  var rise=('rise'in kv)?kv.rise:null, run=('run'in kv)?kv.run:null,
+      diag=('diag'in kv)?kv.diag:null, pitch=('pitch'in kv)?kv.pitch:null;
+  if(rise!=null && run!=null){ }
+  else if(rise!=null && diag!=null){ if(diag<rise) return; run=Math.sqrt(diag*diag-rise*rise); }
+  else if(run!=null && diag!=null){ if(diag<run) return; rise=Math.sqrt(diag*diag-run*run); }
+  else if(rise!=null && pitch!=null){ run = pitch!==0 ? rise*12/pitch : 0; }
+  else if(run!=null && pitch!=null){ rise = run*pitch/12; }
+  else if(diag!=null && pitch!=null){ var th=Math.atan2(pitch,12); rise=diag*Math.sin(th); run=diag*Math.cos(th); }
+  if(rise==null||run==null) return;
+  diag=Math.sqrt(rise*rise+run*run);
+  pitch = run!==0 ? rise/run*12 : 0;
+  R.rise=rise; R.run=run; R.diag=diag; R.pitch=pitch;
+  R.hip = Math.sqrt((run*Math.SQRT2)*(run*Math.SQRT2)+rise*rise);
+  R.angle = Math.atan2(rise,run)*180/Math.PI;
+};
+Calc.prototype.roofClear=function(){ this.roof=newRoof(); };
+Calc.prototype.circle=function(){ var v=this.current(); var d=v.dim===SCALAR?v.n*12:v.n; return { diam:{n:d,dim:LINEAR}, circ:{n:Math.PI*d,dim:LINEAR}, area:{n:Math.PI*(d/2)*(d/2),dim:AREA} }; };
+Calc.prototype.boardFeet=function(){ var v=this.current(); if(v.dim!==VOLUME) return {error:"Bd Ft needs a volume (e.g. 2in × 6in × 8ft)"}; return {n:v.n/144, dim:SCALAR}; };
+var API={ SCALAR:SCALAR,LINEAR:LINEAR,AREA:AREA,VOLUME:VOLUME, fmtFtIn:fmtFtIn,fmtInchesOnly:fmtInchesOnly,fmtYards:fmtYards,fmtNum:fmtNum,fmtVal:fmtVal,fmtMetric:fmtMetric,dimName:dimName, combine:combine,fold:fold,Calc:Calc };
+if(typeof module!=="undefined"&&module.exports) module.exports=API; else global.BT=API;
+})(typeof window!=="undefined"?window:globalThis);
+
+</script>
+<script>
+/* ===================== BuildTally UI ===================== */
+var c = new BT.Calc();
+var convMode = false, SYS = "imp", FRAC = 16, STYLE="graphite", PAPER="white", LAYOUT="full";
+var editTarget = null;
+function el(id){return document.getElementById(id);}
+var T = { tape:el("tape"), grand:el("grand"), gdim:el("gdim"), mem:el("mem") };
+
+function fv(v){
+  if(!v) return "0";
+  if(SYS==="met") return BT.fmtMetric(v);
+  if(v.dim===BT.LINEAR){
+    if(v.u==="in") return BT.fmtInchesOnly(v.n, FRAC);
+    if(v.u==="yd") return BT.fmtYards(v.n);
+    return BT.fmtFtIn(v.n, FRAC);
+  }
+  return BT.fmtVal(v);
+}
+function lin(n){ return {n:n,dim:BT.LINEAR}; }
+function fvL(n){ return n==null ? "—" : fv(lin(n)); }
+function fvIn(n){ return n==null ? "—" : (SYS==="met" ? BT.fmtNum(n*25.4,0)+" mm" : BT.fmtFtIn(n,FRAC)); }
+
+/* ===== CASE SKINS ===== */
+function texURL(svg){ try{ return 'url("data:image/svg+xml;base64,'+btoa(svg)+'")'; }catch(e){ return "none"; } }
+function woodSVG(){
+  var W=440,H=900,cols=["#6a3c18","#5a3214","#7a4a26","#4e2c12","#714224"],g="",x,i;
+  for(x=6;x<W;x+=11){ var col=cols[x%cols.length], w=(0.8+(x*7%10)/10*1.5).toFixed(2), op=(0.20+(x*3%10)/10*0.30).toFixed(2);
+    g+="<path d='M"+x+" -10 V"+(H+10)+"' stroke='"+col+"' stroke-width='"+w+"' opacity='"+op+"'/>"; }
+  var cx=W*0.42;
+  for(i=0;i<10;i++){ var rx=40+i*30, top=(H*0.42)-(160+i*60)*0.15;
+    g+="<path d='M"+(cx-rx)+" "+(H+10)+" C "+(cx-rx)+" "+top+", "+(cx+rx)+" "+top+", "+(cx+rx)+" "+(H+10)+"' fill='none' stroke='#4e2c12' stroke-width='1.6' opacity='0.55'/>"; }
+  return "<svg xmlns='http://www.w3.org/2000/svg' width='"+W+"' height='"+H+"'><defs>"+
+    "<filter id='wp' x='-10%' y='-3%' width='120%' height='106%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.018' numOctaves='3' seed='4' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='20' xChannelSelector='R' yChannelSelector='G'/></filter>"+
+    "<linearGradient id='wb' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#c79b74'/><stop offset='0.5' stop-color='#d3ad8b'/><stop offset='1' stop-color='#c2926a'/></linearGradient>"+
+    "</defs><rect width='"+W+"' height='"+H+"' fill='url(#wb)'/><g filter='url(#wp)'>"+g+"</g></svg>";
+}
+var SVG_CONC="<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='c' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='5' seed='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='0.6' intercept='0.38'/><feFuncG type='linear' slope='0.6' intercept='0.38'/><feFuncB type='linear' slope='0.6' intercept='0.39'/></feComponentTransfer></filter><rect width='200' height='200' filter='url(#c)'/></svg>";
+var SVG_CIRC="<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='200' height='200' fill='#07120f'/><g stroke='#1fd187' stroke-width='2' fill='none' opacity='0.85' stroke-linecap='round'><path d='M0 28 H64 L84 48 H200'/><path d='M0 92 H38 L58 72 H128 L148 92 H200'/><path d='M0 152 H96 L116 132 H200'/><path d='M28 0 V58 L48 78 V200'/><path d='M112 0 V42 L132 62 V128'/><path d='M172 0 V200'/></g><g fill='#1fd187'><circle cx='64' cy='28' r='4'/><circle cx='38' cy='92' r='4'/><circle cx='96' cy='152' r='4'/><circle cx='48' cy='78' r='3'/><circle cx='132' cy='62' r='3'/></g><g fill='#37e0d6'><rect x='148' y='88' width='18' height='8' rx='2'/><rect x='114' y='130' width='8' height='18' rx='2'/></g><g fill='#d24bd2'><rect x='128' y='40' width='6' height='22' rx='2'/><circle cx='172' cy='150' r='3'/></g><g fill='#1fd187' opacity='0.45'><rect x='10' y='172' width='3' height='3'/><rect x='182' y='20' width='3' height='3'/><rect x='88' y='186' width='3' height='3'/><rect x='150' y='168' width='3' height='3'/></g></svg>";
+var TEX_WOOD=texURL(woodSVG()), TEX_CONC=texURL(SVG_CONC), TEX_CIRC=texURL(SVG_CIRC);
+var CASES={
+  graphite:"repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#3a3f47,#20242a)",
+  steel:"repeating-linear-gradient(90deg,rgba(255,255,255,.13) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#d3d8de,#9aa1a9)",
+  navy:"repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.06) 1px 3px), linear-gradient(180deg,#2d4c75,#15263d)",
+  forest:"repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.06) 1px 3px), linear-gradient(180deg,#2f5a3a,#16301f)",
+  sand:"repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#c2a472,#8a6f44)",
+  crimson:"repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,rgba(0,0,0,.06) 1px 3px), linear-gradient(180deg,#9c2c23,#5f1813)",
+  wood:"linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.15)), "+TEX_WOOD+" center/cover",
+  concrete:"linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.16)), "+TEX_CONC+" top left/200px 200px repeat",
+  circuit:"radial-gradient(120% 90% at 50% 28%, rgba(31,209,135,.06), rgba(0,0,0,.40)), "+TEX_CIRC+" top left/132px 132px repeat, #07120f",
+  water:"linear-gradient(180deg, rgba(255,255,255,0) 49.3%, rgba(255,255,255,.6) 49.6%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 50.4%), radial-gradient(3px 3px at 30% 72%, rgba(255,255,255,.55), transparent 60%), radial-gradient(2px 2px at 62% 84%, rgba(255,255,255,.5), transparent 60%), linear-gradient(180deg,#eef6fc 0%,#e3eef8 49%,#5aa3d4 51%,#2f81bf 100%)"
+};
+function applyStyle(name){ STYLE=(CASES[name]?name:"graphite"); document.documentElement.style.setProperty("--shell", CASES[STYLE]); }
+function applyLayout(name){ LAYOUT=(name==="reduced"||name==="minimal")?name:"full"; var k=el("keys"); if(k){ k.classList.remove("reduced","minimal"); if(LAYOUT!=="full") k.classList.add(LAYOUT); } }
+
+var PAPERS={
+  white:{paper:"#ffffff",line:"#e1e1e1",margin:"#f0c4bd",txt:"#1d1f22",mut:"#a6a09a"},
+  manila:{paper:"#ecdcba",line:"#d3c197",margin:"#cf9d7e",txt:"#2a2417",mut:"#897c5f"},
+  sky:{paper:"#e3edfb",line:"#bdd2ef",margin:"#e7b3ab",txt:"#16243d",mut:"#7a8aa6"},
+  charcoal:{paper:"#2b2e33",line:"#3d424a",margin:"#7a3b34",txt:"#f1f1ee",mut:"#9aa0a8"},
+  navy:{paper:"#19233b",line:"#33415e",margin:"#7a4a52",txt:"#eef2fb",mut:"#94a2bd"},
+  forest:{paper:"#1b2a1d",line:"#34452f",margin:"#6a4a3a",txt:"#eef3ea",mut:"#93a896"}
+};
+function applyPaper(name){ PAPER=(PAPERS[name]?name:"white"); var p=PAPERS[PAPER], r=document.documentElement.style;
+  r.setProperty("--paper",p.paper);r.setProperty("--paperline",p.line);r.setProperty("--papermargin",p.margin);
+  r.setProperty("--papertxt",p.txt);r.setProperty("--papermut",p.mut); }
+
+var UNIT_SETS = { imp: [["yd","Yds"],["feet","Feet"],["inch","Inch"]], met: [["m","m"],["cm","cm"],["mm","mm"]] };
+function applySystem(){
+  var set=UNIT_SETS[SYS];
+  for(var i=0;i<3;i++){ var b=el("u"+i); if(b){ b.dataset.k=set[i][0]; b.textContent=set[i][1]; } }
+  el("fracKey").style.opacity = SYS==="met" ? .4 : 1;
+  render();
+}
+
+/* ---------- roof / stair solver ---------- */
+function makeRoofD(){ return {pitch:null,run:null,rise:null,diag:null,hip:null,angle:null,given:[]}; }
+function makeStairD(){ return {rise:null,target:7.75,tread:10,n:null,riser:null,treads:null,run:null,stringer:null,landRiser:null,surface:0.75,landFinish:null,landFrame:null}; }
+var roofD=makeRoofD(), stairD=makeStairD();
+function roofSetField(d,key,val){ if(key==="pitch") d.pitch=val; else d[key]=val; d.given=d.given.filter(function(k){return k!==key;}); d.given.push(key); if(d.given.length>2) d.given.shift(); solveRoof(d); }
+function solveRoof(d){
+  var g=d.given; if(g.length<2) return;
+  var kv={}; kv[g[0]]=d[g[0]]; kv[g[1]]=d[g[1]];
+  var rise=('rise'in kv)?kv.rise:null, run=('run'in kv)?kv.run:null, diag=('diag'in kv)?kv.diag:null, pitch=('pitch'in kv)?kv.pitch:null;
+  if(rise!=null&&run!=null){}
+  else if(rise!=null&&diag!=null){ if(diag<rise)return; run=Math.sqrt(diag*diag-rise*rise); }
+  else if(run!=null&&diag!=null){ if(diag<run)return; rise=Math.sqrt(diag*diag-run*run); }
+  else if(rise!=null&&pitch!=null){ run=pitch!==0?rise*12/pitch:0; }
+  else if(run!=null&&pitch!=null){ rise=run*pitch/12; }
+  else if(diag!=null&&pitch!=null){ var th=Math.atan2(pitch,12); rise=diag*Math.sin(th); run=diag*Math.cos(th); }
+  if(rise==null||run==null) return;
+  d.rise=rise; d.run=run; d.diag=Math.sqrt(rise*rise+run*run); d.pitch=run!==0?rise/run*12:0;
+  d.hip=Math.sqrt((run*Math.SQRT2)*(run*Math.SQRT2)+rise*rise); d.angle=Math.atan2(rise,run)*180/Math.PI;
+}
+function stairSetField(d,key,val){ d[key]=val; solveStair(d); }
+function solveStair(d){
+  if(d.rise==null||d.rise<=0){ d.n=d.riser=d.treads=d.run=d.stringer=d.landFinish=d.landFrame=null; return; }
+  var mx=(d.target==null?7.75:d.target), td=(d.tread==null?10:d.tread);
+  d.n=Math.max(1,Math.ceil(d.rise/mx)); d.riser=d.rise/d.n; d.treads=d.n-1; d.run=d.treads*td; d.stringer=Math.sqrt(d.rise*d.rise+d.run*d.run);
+  if(d.landRiser!=null && d.landRiser>0 && d.riser!=null){ d.landFinish=d.landRiser*d.riser; d.landFrame=d.landFinish-(d.surface==null?0.75:d.surface); }
+  else { d.landFinish=null; d.landFrame=null; }
+}
+function asInches(cur){ if(cur.dim!==BT.SCALAR) return cur.n; return SYS==="met" ? cur.n*39.37007874015748 : cur.n*12; }
+function pcell(kind,field,label,val,editable){ return '<div class="cc'+(editable?' ed':'')+'"'+(editable?' data-kind="'+kind+'" data-f="'+field+'"':'')+'><span>'+label+'</span><b>'+val+'</b></div>'; }
+function renderRoofPop(){ var d=roofD; el("roofcells").innerHTML=
+  pcell("roof","pitch","Pitch", d.pitch!=null?BT.fmtNum(d.pitch,2)+"/12":"—", true)+pcell("roof",null,"Angle", d.angle!=null?BT.fmtNum(d.angle,1)+"°":"—", false)+
+  pcell("roof","run","Run", fvL(d.run), true)+pcell("roof","rise","Rise", fvL(d.rise), true)+pcell("roof","diag","Diag", fvL(d.diag), true)+pcell("roof",null,"Hip/V", fvL(d.hip), false); }
+function renderStairPop(){ var d=stairD; el("staircells").innerHTML=
+  pcell("stair","rise","Total rise", fvL(d.rise), true)+pcell("stair","target","Max riser", fvIn(d.target), true)+pcell("stair","tread","Tread depth", fvIn(d.tread), true)+
+  pcell("stair",null,"Risers", d.n!=null?d.n:"—", false)+pcell("stair",null,"Riser height", fvL(d.riser), false)+pcell("stair",null,"Treads", d.treads!=null?d.treads:"—", false)+
+  pcell("stair",null,"Total run", fvL(d.run), false)+pcell("stair",null,"Stringer", fvL(d.stringer), false)+
+  '<div class="lblrow">Landing</div>'+
+  pcell("stair","landRiser","At riser #", d.landRiser!=null?d.landRiser:"—", true)+pcell("stair","surface","Surface thick", fvIn(d.surface), true)+
+  pcell("stair",null,"Finish height", fvL(d.landFinish), false)+pcell("stair",null,"Frame height", fvL(d.landFrame), false); }
+function openRoofPop(){ renderRoofPop(); el("roofpop").classList.add("on"); }
+function openStairPop(){ renderStairPop(); el("stairpop").classList.add("on"); }
+function fillField(kind,field){
+  if(!c.hasInput()){ toast("Type a value, then tap a field"); return; }
+  var cur=c.current(), d=(kind==="roof")?roofD:stairD;
+  if(kind==="roof"){ if(field==="pitch") roofSetField(d,"pitch",cur.n); else roofSetField(d,field,asInches(cur)); renderRoofPop(); }
+  else {
+    if(field==="rise") stairSetField(d,"rise",asInches(cur));
+    else if(field==="target"||field==="tread"||field==="surface") stairSetField(d,field,(cur.dim===BT.SCALAR&&SYS==="met")?cur.n/25.4:cur.n);
+    else if(field==="landRiser") stairSetField(d,"landRiser",Math.max(0,Math.round(cur.n)));
+    renderStairPop();
+  }
+  c.clearEntry(); render();
+}
+function answerVal(){ if(c.hasInput()) return c.current(); var a=c.result().acc; return (a && a.n!==0) ? a : null; }
+function popCellsClick(e){ var cc=e.target.closest(".cc.ed"); if(!cc) return; fillField(cc.dataset.kind, cc.dataset.f); }
+el("roofcells").addEventListener("click",popCellsClick);
+el("staircells").addEventListener("click",popCellsClick);
+
+/* ---------- entry / active line display ---------- */
+function entryMain(){
+  var e=c.e;
+  if(e.loaded && e.buf==="" && !e.hasUnit && e.num==null) return fv(e.loaded);
+  if(e.hasUnit || e.num!=null){
+    var s=fv({n:e.inches,dim:BT.LINEAR,u:(e.basis|| (e.num!=null?"in":null))});
+    if(e.num!=null) s += " "+e.num+"/"+(e.buf||"_");
+    else if(e.buf!=="") s += " +"+e.buf;
+    return s;
+  }
+  return e.buf===""?"":e.buf;
+}
+function activeMain(){
+  if(c.hasInput()) return entryMain();
+  if(c.justEval) return fv(c.result().acc);
+  return "";
+}
+function esc(s){return (s+"").replace(/[&<>]/g,function(ch){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[ch];});}
+
+function render(){
+  var fr=c.result(), html="", idx=0;
+  for(var k=0;k<c.steps.length;k++){
+    var s=c.steps[k];
+    if(s.sep){ html+='<div class="tline sep" data-i="'+k+'"></div>'; continue; }
+    if(s.info){
+      if(s.sub){ html+='<div class="tline subtotal" data-i="'+k+'"><div class="op"></div><div class="val">'+esc(s.text)+'</div></div>'; continue; }
+      html+='<div class="tline info'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="op"></div><div class="val">'+esc(s.text)+'</div></div>'; continue;
+    }
+    idx++;
+    var opSym = s.op==="+"?"+":s.op==="-"?"−":s.op==="*"?"×":"÷";
+    var opShown = s.carry ? "↳" : (idx===1?"":opSym);
+    var sel = editTarget===k;
+    var valHtml = sel ? esc(activeMain()) : esc(fv(s.val));
+    html+='<div class="tline'+(sel?' sel active caret':'')+(s.carry?' carry':'')+'" data-i="'+k+'">'+
+      '<div class="op">'+opShown+'</div>'+
+      '<div class="val">'+valHtml+'</div>'+
+      '<div class="note">'+esc(s.note||"")+'</div></div>';
+  }
+  if(editTarget==null){
+    var am=activeMain();
+    if(c.steps.length>0 || am!==""){
+      var pend = (!c.justEval && c.pendingOp && c.steps.length>0) ? ({"+":"+","-":"−","*":"×","/":"÷"}[c.pendingOp]) : "";
+      html+='<div class="tline active caret">'+
+        '<div class="op">'+pend+'</div><div class="val">'+esc(am)+'</div><div class="note"></div></div>';
+    }
+  }
+  if(html==="") html='<div class="emptytape">Tape is empty. Type a value, choose an operator, repeat.<br>Tap a line to edit it; tap <b>abc</b> to add a note.</div>';
+  var atBottom = (T.tape.scrollHeight - T.tape.scrollTop - T.tape.clientHeight) < 24;
+  T.tape.innerHTML=html;
+  if(atBottom) T.tape.scrollTop=T.tape.scrollHeight;
+
+  if(fr.error){ T.grand.textContent="Error"; T.gdim.textContent=fr.error; }
+  else { T.grand.textContent=fv(fr.acc); T.gdim.textContent=BT.dimName(fr.acc.dim)||"Number"; }
+  T.mem.style.display = c.memory? "inline-block":"none";
+  if(c.memory) T.mem.textContent="M "+fv(c.memory);
+  save();
+}
+
+function addInfo(text){ c.steps.push({info:true,text:text}); }
+function toast(m){var t=el("toast");t.textContent=m;t.classList.add("on");clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove("on");},1600);}
+
+function blockValueCount(){ var n=0; for(var i=c.steps.length-1;i>=0;i--){ var s=c.steps[i]; if(s.sep) break; if(!s.info && !s.card && s.val) n++; } return n; }
+function doEquals(){
+  var had=c.hasInput();
+  if(had){ c.equals(); } else { c.justEval=true; }
+  var bc=blockValueCount();
+  if(bc<1) return;
+  if(bc===1 && !had){
+    for(var i=c.steps.length-1;i>=0;i--){ var s=c.steps[i]; if(s.sep) break; if(s.val && !s.info){ if(s.carry) return; break; } }
+  }
+  var tot=c.result().acc;
+  if(bc>=2) c.steps.push({info:true, sub:true, text:"= "+fv(tot)});
+  c.steps.push({sep:true});
+  c.steps.push({op:"+", val:{n:tot.n,dim:tot.dim,u:tot.u}, note:"", carry:true});
+  c.pendingOp="+"; c.justEval=false; c.clearEntry(); editTarget=null;
+}
+
+/* ---------- inline edit helpers ---------- */
+function commitEdit(){
+  if(editTarget!=null && c.steps[editTarget] && c.steps[editTarget].val && c.hasInput()){
+    c.steps[editTarget].val=c.finalizeEntry();
+  }
+  c.clearEntry(); editTarget=null; c.justEval=true;
+  if(window.recomputeChain) recomputeChain();
+}
+function deleteLine(i){ c.steps.splice(i,1); editTarget=null; c.clearEntry(); c.justEval=true; if(window.recomputeChain) recomputeChain(); }
+function lastNotableLine(){ for(var i=c.steps.length-1;i>=0;i--){ var s=c.steps[i]; if(!s.sep && !s.info && s.val) return i; } return -1; }
+function isPristineLoaded(){ var e=c.e; return !!(e.loaded && e.buf==="" && !e.hasUnit && e.num==null); }
+function undoLast(){ if(c.steps.length===0) return; c.steps.pop(); while(c.steps.length && (c.steps[c.steps.length-1].sep || c.steps[c.steps.length-1].sub)) c.steps.pop(); editTarget=null; c.clearEntry(); c.justEval=true; if(window.recomputeChain) recomputeChain(); }
+function deleteLineUp(){
+  var i=editTarget; if(i==null) return;
+  c.steps.splice(i,1);
+  var j=i-1; while(j>=0 && c.steps[j] && c.steps[j].sep) j--;
+  if(j>=0 && c.steps[j]){ editTarget=j; var s=c.steps[j]; if(s.val) c.loadValue(s.val); else c.clearEntry(); }
+  else { editTarget=null; c.clearEntry(); c.justEval=true; }
+  if(window.recomputeChain) recomputeChain();
+}
+
+/* ---------- key handler ---------- */
+function isEntryKey(k){ return /^[0-9]$/.test(k) || ["dot","feet","inch","yd","m","cm","mm","frac","pm"].indexOf(k)>=0; }
+function applyEntryKey(k){
+  if(/^[0-9]$/.test(k)) c.inputDigit(k);
+  else if(k==="dot") c.inputDot();
+  else if(k==="frac") c.inputFrac();
+  else if(k==="pm") c.plusminus();
+  else c.inputUnit({feet:"ft",inch:"in",yd:"yd",m:"m",cm:"cm",mm:"mm"}[k]);
+}
+function press(k){
+  if(convMode && ["yd","feet","inch","m","cm","mm"].indexOf(k)>=0){
+    var u={feet:"ft",inch:"in",yd:"yd",m:"m",cm:"cm",mm:"mm"}[k];
+    var rd=c.convertDisplay(u); convMode=false; addInfo("Conv → "+rd); toast(rd); render(); return;
+  }
+  if(editTarget!=null){
+    if(k==="bk"){
+      if(c.hasInput() && !isPristineLoaded()){ c.backspace(); render(); return; }
+      deleteLineUp(); render(); return;
+    }
+    if(isPristineLoaded() && c.e.loaded.dim===BT.LINEAR && (k==="feet"||k==="inch"||k==="yd")){
+      c.e.loaded.u = (k==="feet"?"ft":k==="inch"?"in":"yd"); render(); return;
+    }
+    if(isEntryKey(k)){ applyEntryKey(k); render(); return; }
+    if(k!=="ac"){ commitEdit(); }
+  } else if(k==="bk" && !c.hasInput()){
+    undoLast(); render(); return;
+  }
+  if(/^[0-9]$/.test(k)){ c.inputDigit(k); render(); return; }
+  switch(k){
+    case "dot": c.inputDot(); break;
+    case "feet": c.inputUnit("ft"); break;
+    case "inch": c.inputUnit("in"); break;
+    case "yd": c.inputUnit("yd"); break;
+    case "m": c.inputUnit("m"); break;
+    case "cm": c.inputUnit("cm"); break;
+    case "mm": c.inputUnit("mm"); break;
+    case "frac": c.inputFrac(); break;
+    case "add": c.operator("+"); break;
+    case "sub": c.operator("-"); break;
+    case "mul": c.operator("*"); break;
+    case "div": c.operator("/"); break;
+    case "eq": doEquals(); break;
+    case "space": doEquals(); break;
+    case "pct": c.percent(); break;
+    case "sqrt": { var sq=c.sqrt(); toast("\u221a = "+fv(sq)); break; }
+    case "pm": c.plusminus(); break;
+    case "bk": c.backspace(); break;
+    case "ac": c.allClear(); convMode=false; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null;
+      el("roofpop").classList.remove("on"); el("stairpop").classList.remove("on"); closeNote(); break;
+    case "mplus": c.memPlus(); toast("M+ "+fv(c.memory)); break;
+    case "mminus": c.memMinus(); toast("M− "+fv(c.memory)); break;
+    case "rcl": c.recall(); break;
+    case "conv": convMode=!convMode; toast(convMode?"Convert: tap a unit":"Convert off"); break;
+    case "pitch": { var v=answerVal(); if(v){ roofSetField(roofD,"pitch",v.n); c.clearEntry(); } openRoofPop(); break; }
+    case "run":   { var v=answerVal(); if(v){ roofSetField(roofD,"run",asInches(v)); c.clearEntry(); } openRoofPop(); break; }
+    case "rise":  { var v=answerVal(); if(v){ roofSetField(roofD,"rise",asInches(v)); c.clearEntry(); } openRoofPop(); break; }
+    case "diag":  { var v=answerVal(); if(v){ roofSetField(roofD,"diag",asInches(v)); c.clearEntry(); } openRoofPop(); break; }
+    case "hipv":  openRoofPop(); break;
+    case "stair": { var v=answerVal(); if(v){ stairSetField(stairD,"rise",asInches(v)); c.clearEntry(); } openStairPop(); break; }
+    case "circ": { var cc=c.circle(); addInfo("Circle ⌀ "+fv(cc.diam)); addInfo("Circumf "+fv(cc.circ)); addInfo("Area "+fv(cc.area)); c.loadValue(cc.area); break; }
+    case "bdft": { var b=c.boardFeet(); if(b.error){toast(b.error);} else { addInfo("Board feet "+BT.fmtNum(b.n)); c.loadValue(b); } break; }
+  }
+  render();
+}
+el("keys").addEventListener("pointerdown",function(e){
+  var b=e.target.closest(".key"); if(!b) return; e.preventDefault();
+  if(el("noteBar").classList.contains("on")) closeNote();
+  b.classList.add("hit"); setTimeout(function(){b.classList.remove("hit");},90);
+  press(b.dataset.k);
+}, {passive:false});
+
+/* physical keyboard */
+window.addEventListener("keydown",function(e){
+  if(document.activeElement===el("noteInput")) return;
+  if(el("menu").classList.contains("on")) return;
+  var map={"+":"add","-":"sub","*":"mul","/":"div","=":"eq","Enter":"eq",".":"dot","Backspace":"bk","%":"pct","Escape":"ac"};
+  if(/^[0-9]$/.test(e.key)){ press(e.key); e.preventDefault(); }
+  else if(map[e.key]){ press(map[e.key]); e.preventDefault(); }
+  else if(/^[a-zA-Z]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey){
+    var ti = (editTarget!=null && c.steps[editTarget] && c.steps[editTarget].val) ? editTarget : lastNotableLine();
+    if(ti>=0 && c.steps[ti] && c.steps[ti].val){
+      editTarget=ti; if(!c.hasInput()) c.loadValue(c.steps[ti].val);
+      if(openNote()){ var ni=el("noteInput"); ni.value+=e.key; c.steps[ti].note=ni.value; render(); e.preventDefault(); }
+    }
+  }
+});
+
+/* ---------- tape tap: select / edit line ---------- */
+T.tape.addEventListener("click",function(e){
+  var row=e.target.closest(".tline");
+  if(!row || (row.classList.contains("active") && editTarget==null)){ if(editTarget!=null){ commitEdit(); render(); } return; }
+  var i=parseInt(row.dataset.i,10); if(isNaN(i)) return;
+  if(editTarget!=null && editTarget!==i) commitEdit();
+  editTarget=i;
+  var s=c.steps[i];
+  if(s && s.val) c.loadValue(s.val); else c.clearEntry();
+  render();
+});
+
+/* ---------- notes (abc keyboard) ---------- */
+function openNote(){
+  if(editTarget==null || !c.steps[editTarget] || c.steps[editTarget].sep || c.steps[editTarget].info){ toast("Tap a line first, then abc to label it"); return false; }
+  var s=c.steps[editTarget], ni=el("noteInput");
+  ni.value=s.note||""; el("noteBar").classList.add("on"); ni.focus();
+  try{ ni.setSelectionRange(ni.value.length,ni.value.length); }catch(e){}
+  return true;
+}
+function closeNote(){ el("noteBar").classList.remove("on"); var ni=el("noteInput"); if(ni) ni.blur(); }
+el("kbBtn").addEventListener("click",openNote);
+el("noteDone").addEventListener("click",closeNote);
+el("noteInput").addEventListener("input",function(){
+  if(editTarget!=null && c.steps[editTarget]){ c.steps[editTarget].note=el("noteInput").value; render(); }
+});
+el("noteInput").addEventListener("keydown",function(e){ e.stopPropagation(); if(e.key==="Enter"){ closeNote(); } });
+
+/* ---------- menu ---------- */
+function segOn(segId, attr, val){ var seg=el(segId); for(var i=0;i<seg.children.length;i++){ var b=seg.children[i]; b.classList.toggle("on", b.getAttribute(attr)===String(val)); } }
+function openMenu(){ segOn("unitSeg","data-u",SYS); segOn("fracSeg","data-fr",FRAC); segOn("layoutSeg","data-ly",LAYOUT); segOn("styleSeg","data-st",STYLE); segOn("paperSeg","data-pa",PAPER); el("menu").classList.add("on"); }
+function closeMenu(){ el("menu").classList.remove("on"); }
+el("nameBtn").addEventListener("click",openMenu);
+el("menuClose").addEventListener("click",closeMenu);
+el("menu").addEventListener("click",function(e){ if(e.target.id==="menu") closeMenu(); });
+el("unitSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; SYS=b.dataset.u; saveSettings(); applySystem(); segOn("unitSeg","data-u",SYS); });
+el("fracSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; FRAC=parseInt(b.dataset.fr,10); saveSettings(); segOn("fracSeg","data-fr",FRAC); render(); });
+el("layoutSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; applyLayout(b.dataset.ly); saveSettings(); segOn("layoutSeg","data-ly",LAYOUT); });
+el("styleSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; applyStyle(b.dataset.st); saveSettings(); segOn("styleSeg","data-st",STYLE); });
+el("paperSeg").addEventListener("click",function(e){ var b=e.target.closest(".swatch"); if(!b)return; applyPaper(b.dataset.pa); saveSettings(); segOn("paperSeg","data-pa",PAPER); });
+el("mNew").addEventListener("click",function(){ if(c.steps.length && !confirm("Start a new tape?")) return; c.allClear(); convMode=false; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null; closeMenu(); render(); toast("New tape"); });
+el("mSave").addEventListener("click",function(){ downloadTape(); });
+
+/* roof/stair -> tape — one item per line */
+function roofToTape(){ var d=roofD; if(d.rise==null){ toast("Enter two of pitch/run/rise/diag"); return; }
+  addInfo("ROOF  "+BT.fmtNum(d.pitch,2)+"/12  ("+BT.fmtNum(d.angle,1)+"°)");
+  addInfo("   Rise   "+fvL(d.rise));
+  addInfo("   Run    "+fvL(d.run));
+  addInfo("   Diag   "+fvL(d.diag));
+  addInfo("   Hip/V  "+fvL(d.hip));
+  el("roofpop").classList.remove("on"); render(); toast("Sent to tape"); }
+function stairToTape(){ var d=stairD; if(d.rise==null){ toast("Enter total rise"); return; }
+  addInfo("STAIRS  total rise "+fvL(d.rise));
+  addInfo("   "+d.n+" risers @ "+fvL(d.riser));
+  addInfo("   "+d.treads+" treads @ "+fvIn(d.tread));
+  addInfo("   Total run  "+fvL(d.run));
+  addInfo("   Stringer   "+fvL(d.stringer));
+  if(d.landFinish!=null){
+    addInfo("   Landing @ riser "+d.landRiser);
+    addInfo("      Finish  "+fvL(d.landFinish));
+    addInfo("      Frame   "+fvL(d.landFrame)+"  (surf "+fvIn(d.surface)+")");
+  }
+  el("stairpop").classList.remove("on"); render(); toast("Sent to tape"); }
+el("roofToTape").onclick=roofToTape; el("stairToTape").onclick=stairToTape;
+el("roofPopClose").onclick=function(){ el("roofpop").classList.remove("on"); };
+el("stairPopClose").onclick=function(){ el("stairpop").classList.remove("on"); };
+
+/* ---------- save .txt ---------- */
+function tapeText(){
+  var fr=c.result(), out=[]; out.push("POCKETBUILDER — TAPE"); out.push(new Date().toLocaleString()); out.push("");
+  var idx=0;
+  for(var k=0;k<c.steps.length;k++){ var s=c.steps[k];
+    if(s.sep){ out.push(""); continue; }
+    if(s.sub){ out.push("        "+s.text); continue; }
+    if(s.info){ out.push("    "+s.text); continue; }
+    idx++; var op=s.carry?">":s.op==="+"?"+":s.op==="-"?"-":s.op==="*"?"x":"/"; var run=fr.run[k]?fv(fr.run[k]):"";
+    out.push((idx===1?" ":op)+" "+fv(s.val)+(s.note?"   ; "+s.note:"")+"   = "+run);
+  }
+  out.push(""); out.push("TOTAL: "+fv(fr.acc)+"  "+(BT.dimName(fr.acc.dim)||""));
+  return out.join("\n");
+}
+function downloadTape(){
+  if(c.steps.length===0){ toast("Tape is empty"); return; }
+  try{ var blob=new Blob([tapeText()],{type:"text/plain"}); var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="pocketbuilder-tape.txt"; document.body.appendChild(a); a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},800); toast("Tape saved"); closeMenu();
+  }catch(e){ toast("Save not supported here"); }
+}
+
+/* ---------- persistence ---------- */
+function save(){ try{ localStorage.setItem("buildtally", JSON.stringify({steps:c.steps,mem:c.memory,roofD:roofD,stairD:stairD})); }catch(e){} }
+function saveSettings(){ try{ localStorage.setItem("bt_set", JSON.stringify({SYS:SYS,FRAC:FRAC,STYLE:STYLE,PAPER:PAPER,LAYOUT:LAYOUT})); }catch(e){} }
+function load(){
+  try{ var st=JSON.parse(localStorage.getItem("bt_set")||"null"); if(st){ SYS=st.SYS||"imp"; FRAC=st.FRAC||16; STYLE=st.STYLE||"graphite"; PAPER=st.PAPER||"white"; LAYOUT=st.LAYOUT||"full"; } }catch(e){}
+  try{ var d=JSON.parse(localStorage.getItem("buildtally")||"null"); if(d){ c.steps=d.steps||[]; c.memory=d.mem||null; c.justEval=true; if(d.roofD)roofD=d.roofD; if(d.stairD)stairD=d.stairD; } }catch(e){}
+}
+load(); applyStyle(STYLE); applyPaper(PAPER); applyLayout(LAYOUT); applySystem();
+
+/* ---------- PWA ---------- */
+(function(){
+  /* (removed unused inline manifest/sw strings) */
+  if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
+    try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){}
+  }
+})();
+
+</script>
+<script>
+/* ---------- Share / Copy the tape ---------- */
+(function(){
+  function tapeOK(){ return typeof c!=="undefined" && c.steps && c.steps.length>0; }
+  function fallbackCopy(t){
+    try{
+      var ta=document.createElement("textarea"); ta.value=t;
+      ta.style.position="fixed"; ta.style.left="-9999px"; ta.style.top="0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      var ok=document.execCommand("copy"); document.body.removeChild(ta);
+      toast(ok?"Copied to clipboard":"Copy not supported here");
+    }catch(e){ toast("Copy not supported here"); }
+  }
+  function copyTape(){
+    if(!tapeOK()){ toast("Tape is empty"); return; }
+    var t=tapeText();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){ toast("Copied to clipboard"); try{closeMenu();}catch(e){} }).catch(function(){ fallbackCopy(t); });
+    } else { fallbackCopy(t); }
+  }
+  function shareTape(){
+    if(!tapeOK()){ toast("Tape is empty"); return; }
+    var t=tapeText();
+    if(navigator.share){
+      navigator.share({title:"PocketBuilder tape", text:t}).then(function(){ try{closeMenu();}catch(e){} }).catch(function(){});
+    } else {
+      copyTape();   /* desktop: no share sheet -> copy so they can paste into a text/email */
+    }
+  }
+  window.copyTape=copyTape; window.shareTape=shareTape;
+  function addBtns(){
+    var rows=document.getElementsByClassName("menubtns"); if(!rows.length) return;
+    var row=rows[0], save=document.getElementById("mSave");
+    if(document.getElementById("mShare")) return;
+    function mk(id,label){ var b=document.createElement("button"); b.className="btn alt"; b.id=id; b.textContent=label; b.style.padding="11px 6px"; return b; }
+    var cp=mk("mCopy","Copy"), sh=mk("mShare","Share");
+    if(save){ row.insertBefore(cp,save); row.insertBefore(sh,save); } else { row.appendChild(cp); row.appendChild(sh); }
+    cp.addEventListener("click",copyTape); sh.addEventListener("click",shareTape);
+    var n=document.getElementById("mNew"); if(n){ n.textContent="New"; n.style.padding="11px 6px"; }
+    if(save){ save.textContent="Save"; save.style.padding="11px 6px"; }
+    var dn=document.getElementById("menuClose"); if(dn){ dn.style.padding="11px 6px"; }
+  }
+  if(document.readyState!=="loading") addBtns(); else document.addEventListener("DOMContentLoaded",addBtns);
+})();
+
+</script>
+<script>
+/* ---------- Notepad tape: notes ride in a right-hand margin column and wrap DOWN, never over the math ---------- */
+/* pure CSS — keeps the existing .note element on the right; only fixes wrap/alignment so it can't overlap */
+(function(){
+  var css=
+    /* 3-column line: op | value | note-margin (up to 44% wide) */
+    "#tape .tline{grid-template-columns:20px minmax(0,1fr) minmax(0,44%);}"+
+    /* a line that actually has a note: top-align so the number sits at the top-left and the note wraps down the right */
+    "#tape .tline:has(> .note:not(:empty)){align-items:start;}"+
+    "#tape .tline:has(> .note:not(:empty)) > .op,#tape .tline:has(> .note:not(:empty)) > .val{align-self:start;}"+
+    /* the note itself: right column, right-aligned, wraps freely, no truncation */
+    "#tape .tline > .note{grid-column:3;justify-self:end;align-self:start;text-align:right;min-width:0;max-width:100%;"+
+      "white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;"+
+      "line-height:1.25;font-size:12.5px;font-style:italic;color:var(--papermut);padding:0 0 3px 4px;}"+
+    "#tape .tline > .note:empty{display:none;}";
+  var st=document.createElement("style"); st.id="bt-notepad-css"; st.textContent=css;
+  (document.head||document.documentElement).appendChild(st);
+  try{ if(typeof render==="function") render(); }catch(e){}
+})();
+
+</script>
+<script>
+/* ---------- Edit a line's OPERATION on the tape (3+3 -> tap line, press x -> 3x3) ---------- */
+(function(){
+  var OPMAP={add:"+",sub:"-",mul:"*",div:"/"};
+  /* re-derive the whole chain so carried-forward totals + printed subtotals stay correct */
+  function recomputeChain(){
+    var prev=null, i=0, n=c.steps.length, j;
+    while(i<n){
+      var st=i, en=n;
+      for(j=i;j<n;j++){ if(c.steps[j].sep){ en=j; break; } }
+      for(j=st;j<en;j++){ var s=c.steps[j]; if(s.info) continue; if(s.val){ if(s.carry && prev) s.val={n:prev.n,dim:prev.dim,u:prev.u}; break; } }
+      var res=BT.fold(c.steps.slice(st,en)).acc;
+      for(j=en-1;j>=st;j--){ if(c.steps[j].sub){ c.steps[j].text="= "+fv(res); break; } }
+      prev=res; i=en+1;
+    }
+  }
+  /* change the operation tied to a tapped line. tapping the first number changes the op that follows it. */
+  function changeOp(i,op){
+    if(!c.steps[i]||!c.steps[i].val||c.steps[i].info) return false;
+    var st=0,j; for(j=i-1;j>=0;j--){ if(c.steps[j].sep){ st=j+1; break; } }
+    var firstVal=-1; for(j=st;j<c.steps.length;j++){ var s=c.steps[j]; if(s.sep) break; if(s.val&&!s.info){ firstVal=j; break; } }
+    var target=i;
+    if(i===firstVal){ for(j=i+1;j<c.steps.length;j++){ var s2=c.steps[j]; if(s2.sep) break; if(s2.val&&!s2.info){ target=j; break; } } }
+    if(target===firstVal) return false;                 /* nothing after the first number to re-operate */
+    if(!c.steps[target]||!c.steps[target].val||c.steps[target].info) return false;
+    c.steps[target].op=op; recomputeChain(); return true;
+  }
+  window.changeOp=changeOp; window.recomputeChain=recomputeChain;
+
+  var orig=press;
+  window.press=function(k){
+    if(typeof editTarget!=="undefined" && editTarget!=null && (k==="add"||k==="sub"||k==="mul"||k==="div")
+       && (typeof isPristineLoaded!=="function" || isPristineLoaded())
+       && c.steps[editTarget] && c.steps[editTarget].val && !c.steps[editTarget].info){
+      if(changeOp(editTarget, OPMAP[k])){ try{toast("Changed to "+(k==="mul"?"×":k==="div"?"÷":k==="sub"?"−":"+"));}catch(e){} render(); return; }
+    }
+    return orig(k);
+  };
+})();
+
+</script>
+<script>
+/* ---------- Brand: PocketBuilder ---------- */
+(function(){
+  var NAME="PocketBuilder";
+  try{ document.title=NAME; }catch(e){}
+  function apply(){
+    try{ var nb=document.getElementById("nameBtn"); if(nb) nb.innerHTML=NAME+' <span class="caret">▾</span>'; }catch(e){}
+    try{ var h=document.querySelector("#menu .sheet h4"); if(h) h.textContent=NAME; }catch(e){}
+    try{ var m=document.querySelector('meta[name="apple-mobile-web-app-title"]'); if(m) m.setAttribute("content","PocketBuilder"); }catch(e){}
+    /* static manifest.webmanifest is the installable one - do not override at runtime */
+  }
+  if(document.readyState!=="loading") apply(); else document.addEventListener("DOMContentLoaded",apply);
+})();
+
+</script>
+<script>
+/* ---------- Grow the calculator to fill the display (keep portrait proportions) ---------- */
+(function(){
+  var BW=432, BH=900;   /* design canvas; scaled up/down to fit the window */
+  var st=document.createElement("style"); st.id="bt-grow-css";
+  st.textContent=
+    "#device{width:"+BW+"px !important;height:"+BH+"px !important;max-width:none !important;max-height:none !important;"+
+      "transform-origin:center center;will-change:transform;}"+
+    "html,body{overflow:hidden !important;}";
+  (document.head||document.documentElement).appendChild(st);
+  function fit(){
+    var dev=document.getElementById("device"); if(!dev) return;
+    var vw=window.innerWidth||BW, vh=window.innerHeight||BH;
+    var s=Math.min(vw/BW, vh/BH);
+    if(!(s>0)) s=1;
+    dev.style.transform="scale("+(Math.round(s*1000)/1000)+")";
+  }
+  function boot(){
+    fit();
+    try{ window.addEventListener("resize",fit); window.addEventListener("orientationchange",fit); }catch(e){}
+    setTimeout(fit,250); setTimeout(fit,800);
+  }
+  if(document.readyState!=="loading") boot(); else document.addEventListener("DOMContentLoaded",boot);
+})();
+
+</script>
+
+<script>
+/* ---------- Desktop mode: fixed keypad, growing scratchpad, tape tabs (mobile untouched) ---------- */
+(function(){
+  var FINE = window.matchMedia && window.matchMedia("(pointer:fine)").matches;
+  if(!FINE || window.innerWidth < 640 || window.innerHeight < 480) return;  /* phones/tablets: change nothing */
+
+  /* neutralize the fixed-canvas scaler; let the tape grow, keep the keypad fixed */
+  function desk(){
+    var g=document.getElementById("bt-grow-css"); if(g) g.remove();
+    var css=[
+      "html,body{overflow:hidden !important;}",
+      "#device{transform:none !important;width:min(96vw,920px) !important;height:100dvh !important;max-height:none !important;",
+      "margin:0 auto !important;border-radius:0 !important;padding:10px 16px 12px !important;}",
+      "#keys{width:100%;max-width:432px;margin:0 auto;}",
+      ".chin{display:none;}",
+      "#tabbar{display:flex;align-items:flex-end;gap:4px;padding:6px 10px 0;background:var(--chrome);border-bottom:1px solid var(--line);overflow-x:auto;flex:0 0 auto;}",
+      "#tabbar .tab{display:flex;align-items:center;gap:8px;max-width:200px;padding:7px 12px;border-radius:9px 9px 0 0;background:#2a2e34;color:var(--keysub);",
+      "font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;border:1px solid var(--line);border-bottom:none;flex:0 1 auto;}",
+      "#tabbar .tab.on{background:var(--paper);color:var(--papertxt);}",
+      "#tabbar .tab .tx{overflow:hidden;text-overflow:ellipsis;}",
+      "#tabbar .tab .x{opacity:.5;padding:0 3px;flex:0 0 auto;} #tabbar .tab .x:hover{opacity:1;color:#d65a4c;}",
+      "#tabbar .addtab{flex:0 0 auto;padding:5px 12px 7px;margin:0 0 3px 2px;border-radius:8px;background:var(--keyfn);color:var(--keytxt);font-weight:800;cursor:pointer;font-size:15px;border:1px solid var(--line);}"
+    ].join("");
+    var st=document.createElement("style"); st.id="bt-desktop-css"; st.textContent=css;
+    document.head.appendChild(st);
+    var dev=document.getElementById("device"); if(dev) dev.style.transform="";
+  }
+
+  /* ---- tabs: multiple scratchpads ---- */
+  var tabs=[], act=0, bar=null;
+  function freshTab(n){ return {name:"Tape "+n, steps:[], roofD:makeRoofD(), stairD:makeStairD()}; }
+  function commitActive(){ tabs[act].steps=c.steps; tabs[act].roofD=roofD; tabs[act].stairD=stairD; }
+  function persist(){ try{ localStorage.setItem("bt_tabs", JSON.stringify({tabs:tabs, act:act})); }catch(e){} }
+  function loadTab(i){
+    act=i; var t=tabs[i];
+    c.steps=t.steps||[]; c.memory=c.memory; c.justEval=false; c.pendingOp="+"; c.clearEntry();
+    window.roofD=t.roofD||makeRoofD(); window.stairD=t.stairD||makeStairD();
+    window.editTarget=null; window.convMode=false;
+    var rp=document.getElementById("roofpop"), sp=document.getElementById("stairpop");
+    if(rp) rp.classList.remove("on"); if(sp) sp.classList.remove("on");
+    try{ closeNote(); }catch(e){}
+  }
+  function switchTab(i){
+    if(i===act){ return; }
+    try{ if(editTarget!=null) commitEdit(); }catch(e){}
+    commitActive(); loadTab(i); persist(); renderTabs(); render();
+  }
+  function addTab(){
+    try{ if(editTarget!=null) commitEdit(); }catch(e){}
+    commitActive();
+    var mx=0; tabs.forEach(function(t){ var m=/^Tape (\d+)$/.exec(t.name); if(m) mx=Math.max(mx,parseInt(m[1],10)); });
+    tabs.push(freshTab(mx+1));
+    loadTab(tabs.length-1); persist(); renderTabs(); render(); toast("New tape tab");
+  }
+  function closeTab(i){
+    var t=tabs[i], has=(t.steps||[]).some(function(s){ return s.val || s.info; });
+    if(has && !confirm('Close "'+t.name+'"? Its tape will be lost.')) return;
+    tabs.splice(i,1);
+    if(tabs.length===0){ tabs.push(freshTab(1)); }
+    loadTab(Math.min(i, tabs.length-1)===i && i<tabs.length ? i : Math.max(0, i-1));
+    persist(); renderTabs(); render();
+  }
+  function renameTab(i){
+    var n=prompt("Tab name:", tabs[i].name);
+    if(n!=null && n.trim()!==""){ tabs[i].name=n.trim().slice(0,24); persist(); renderTabs(); }
+  }
+  function renderTabs(){
+    if(!bar) return;
+    bar.innerHTML="";
+    tabs.forEach(function(t,i){
+      var d=document.createElement("div"); d.className="tab"+(i===act?" on":"");
+      var tx=document.createElement("span"); tx.className="tx"; tx.textContent=t.name; d.appendChild(tx);
+      if(tabs.length>1){
+        var x=document.createElement("span"); x.className="x"; x.textContent="✕";
+        x.addEventListener("click",function(ev){ ev.stopPropagation(); closeTab(i); });
+        d.appendChild(x);
+      }
+      d.addEventListener("click",function(){ switchTab(i); });
+      d.addEventListener("dblclick",function(){ renameTab(i); });
+      bar.appendChild(d);
+    });
+    var add=document.createElement("div"); add.className="addtab"; add.textContent="+"; add.title="New tape tab";
+    add.addEventListener("click",addTab);
+    bar.appendChild(add);
+  }
+
+  function boot(){
+    desk();
+    /* restore tabs; migrate the current single tape into Tab 1 on first run */
+    try{
+      var d=JSON.parse(localStorage.getItem("bt_tabs")||"null");
+      if(d && d.tabs && d.tabs.length){ tabs=d.tabs; act=Math.min(d.act||0, tabs.length-1); }
+    }catch(e){}
+    if(tabs.length===0){ tabs=[{name:"Tape 1", steps:c.steps, roofD:roofD, stairD:stairD}]; act=0; }
+    else { loadTab(act); }
+    var app=document.getElementById("app"), tap=document.querySelector(".taparea");
+    if(app && tap){ bar=document.createElement("div"); bar.id="tabbar"; app.insertBefore(bar, tap); }
+    renderTabs();
+    /* keep the active tab persisted on every save */
+    var origSave=save;
+    window.save=function(){ origSave(); commitActive(); persist(); };
+    render();
+  }
+  if(document.readyState!=="loading") boot(); else document.addEventListener("DOMContentLoaded", boot);
+})();
+</script>
+</body>
+</html>
