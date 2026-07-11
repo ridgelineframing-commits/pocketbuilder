@@ -1,0 +1,42 @@
+{
+  "packageId": "construction.ridgeline.pocketbuilder",
+  "host": "ridgelineframing-commits.github.io",
+  "name": "PocketBuilder",
+  "launcherName": "PocketBuilder",
+  "display": "standalone",
+  "themeColor": "#1b1d21",
+  "themeColorDark": "#1b1d21",
+  "navigationColor": "#1b1d21",
+  "navigationColorDark": "#1b1d21",
+  "navigationDividerColor": "#1b1d21",
+  "navigationDividerColorDark": "#1b1d21",
+  "backgroundColor": "#1b1d21",
+  "enableNotifications": false,
+  "startUrl": "/pocketbuilder/",
+  "iconUrl": "https://ridgelineframing-commits.github.io/pocketbuilder/icon-512.png",
+  "maskableIconUrl": "https://ridgelineframing-commits.github.io/pocketbuilder/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://ridgelineframing-commits.github.io/pocketbuilder/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://ridgelineframing-commits.github.io/pocketbuilder/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}
