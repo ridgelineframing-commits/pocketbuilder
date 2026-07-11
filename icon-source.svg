@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2048">
+<defs>
+ <linearGradient id="wht" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfdcf0"/>
+ </linearGradient>
+ <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e2eaf6"/>
+ </linearGradient>
+ <linearGradient id="disp" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#0a2549"/><stop offset="1" stop-color="#17457f"/>
+ </linearGradient>
+ <linearGradient id="key_b" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#3f83d8"/><stop offset="1" stop-color="#1b52a0"/>
+ </linearGradient>
+ <linearGradient id="key_y" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#ffe27a"/><stop offset="1" stop-color="#f2b616"/>
+ </linearGradient>
+</defs>
+<!-- clean strokes only; depth comes from the composited shadows, so no halo rings at line ends -->
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M336 856 L1024 280 L1712 856" stroke="url(#wht)" stroke-width="68"/>
+ <path d="M480 856 L480 1768 L1568 1768 L1568 856" stroke="url(#wht)" stroke-width="68"/>
+</g>
+<rect x="656" y="900" width="736" height="760" rx="72" fill="url(#body)" stroke="#b9c9e0" stroke-width="6"/>
+<rect x="716" y="914" width="616" height="34" rx="17" fill="#ffffff" opacity="0.55"/>
+<rect x="712" y="972" width="624" height="212" rx="30" fill="url(#disp)"/>
+<rect x="712" y="972" width="624" height="212" rx="30" fill="none" stroke="#081f3e" stroke-width="8" stroke-opacity="0.6"/>
+<rect x="734" y="988" width="580" height="42" rx="20" fill="#ffffff" opacity="0.10"/>
+<text x="1288" y="1128" font-family="DejaVu Sans" font-weight="bold" font-size="150" text-anchor="end" fill="#ffd94d">42&#8243;</text>
+<rect x="720" y="1232" width="264" height="168" rx="36" fill="url(#key_b)" stroke="#0c2c56" stroke-opacity="0.35" stroke-width="6"/><rect x="742" y="1244" width="220" height="26" rx="13" fill="#ffffff" opacity="0.28"/><text x="852" y="1352" font-family="DejaVu Sans" font-weight="bold" font-size="104" text-anchor="middle" fill="#ffffff">FT</text><rect x="1064" y="1232" width="264" height="168" rx="36" fill="url(#key_b)" stroke="#0c2c56" stroke-opacity="0.35" stroke-width="6"/><rect x="1086" y="1244" width="220" height="26" rx="13" fill="#ffffff" opacity="0.28"/><text x="1196" y="1352" font-family="DejaVu Sans" font-weight="bold" font-size="104" text-anchor="middle" fill="#ffffff">IN</text><rect x="720" y="1440" width="264" height="168" rx="36" fill="url(#key_y)" stroke="#0c2c56" stroke-opacity="0.35" stroke-width="6"/><rect x="742" y="1452" width="220" height="26" rx="13" fill="#ffffff" opacity="0.35"/><text x="852" y="1560" font-family="DejaVu Sans" font-weight="bold" font-size="104" text-anchor="middle" fill="#0e3467">+</text><rect x="1064" y="1440" width="264" height="168" rx="36" fill="url(#key_y)" stroke="#0c2c56" stroke-opacity="0.35" stroke-width="6"/><rect x="1086" y="1452" width="220" height="26" rx="13" fill="#ffffff" opacity="0.35"/><text x="1196" y="1560" font-family="DejaVu Sans" font-weight="bold" font-size="104" text-anchor="middle" fill="#0e3467">−</text>
+</svg>
