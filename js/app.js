@@ -1,8 +1,8 @@
-/* ===================== BuildTally UI ===================== */
-var c = new BT.Calc();
+/* ===================== PocketBuilder UI ===================== */
+var c = new PB.Calc();
 window._pendingNote="";
-(function(){ var oc=BT.Calc.prototype._commit;
-  BT.Calc.prototype._commit=function(op){ var had=this.hasInput(); oc.call(this,op);
+(function(){ var oc=PB.Calc.prototype._commit;
+  PB.Calc.prototype._commit=function(op){ var had=this.hasInput(); oc.call(this,op);
     if(had && window._pendingNote){
       for(var i=this.steps.length-1;i>=0;i--){ var st=this.steps[i]; if(st.val && !st.info){ st.note=(st.note? st.note+" ":"")+window._pendingNote.trim(); break; } }
       window._pendingNote="";
@@ -15,17 +15,17 @@ var T = { tape:el("tape"), grand:el("grand"), gdim:el("gdim"), mem:el("mem") };
 
 function fv(v){
   if(!v) return "0";
-  if(SYS==="met") return BT.fmtMetric(v);
-  if(v.dim===BT.LINEAR){
-    if(v.u==="in") return BT.fmtInchesOnly(v.n, FRAC);
-    if(v.u==="yd") return BT.fmtYards(v.n);
-    return BT.fmtFtIn(v.n, FRAC);
+  if(SYS==="met") return PB.fmtMetric(v);
+  if(v.dim===PB.LINEAR){
+    if(v.u==="in") return PB.fmtInchesOnly(v.n, FRAC);
+    if(v.u==="yd") return PB.fmtYards(v.n);
+    return PB.fmtFtIn(v.n, FRAC);
   }
-  return BT.fmtVal(v);
+  return PB.fmtVal(v);
 }
-function lin(n){ return {n:n,dim:BT.LINEAR}; }
+function lin(n){ return {n:n,dim:PB.LINEAR}; }
 function fvL(n){ return n==null ? "—" : fv(lin(n)); }
-function fvIn(n){ return n==null ? "—" : (SYS==="met" ? BT.fmtNum(n*25.4,0)+" mm" : BT.fmtFtIn(n,FRAC)); }
+function fvIn(n){ return n==null ? "—" : (SYS==="met" ? PB.fmtNum(n*25.4,0)+" mm" : PB.fmtFtIn(n,FRAC)); }
 
 /* ===== CASE SKINS ===== */
 function texURL(svg){ try{ return 'url("data:image/svg+xml;base64,'+btoa(svg)+'")'; }catch(e){ return "none"; } }
@@ -106,10 +106,10 @@ function solveStair(d){
   if(d.landRiser!=null && d.landRiser>0 && d.riser!=null){ d.landFinish=d.landRiser*d.riser; d.landFrame=d.landFinish-(d.surface==null?0.75:d.surface); }
   else { d.landFinish=null; d.landFrame=null; }
 }
-function asInches(cur){ if(cur.dim!==BT.SCALAR) return cur.n; return SYS==="met" ? cur.n*39.37007874015748 : cur.n*12; }
+function asInches(cur){ if(cur.dim!==PB.SCALAR) return cur.n; return SYS==="met" ? cur.n*39.37007874015748 : cur.n*12; }
 function pcell(kind,field,label,val,editable){ return '<div class="cc'+(editable?' ed':'')+'"'+(editable?' data-kind="'+kind+'" data-f="'+field+'"':'')+'><span>'+label+'</span><b>'+val+'</b></div>'; }
 function renderRoofPop(){ var d=roofD; el("roofcells").innerHTML=
-  pcell("roof","pitch","Pitch", d.pitch!=null?BT.fmtNum(d.pitch,2)+"/12":"—", true)+pcell("roof",null,"Angle", d.angle!=null?BT.fmtNum(d.angle,1)+"°":"—", false)+
+  pcell("roof","pitch","Pitch", d.pitch!=null?PB.fmtNum(d.pitch,2)+"/12":"—", true)+pcell("roof",null,"Angle", d.angle!=null?PB.fmtNum(d.angle,1)+"°":"—", false)+
   pcell("roof","run","Run", fvL(d.run), true)+pcell("roof","rise","Rise", fvL(d.rise), true)+pcell("roof","diag","Diag", fvL(d.diag), true)+pcell("roof",null,"Hip/V", fvL(d.hip), false); }
 function renderStairPop(){ var d=stairD; el("staircells").innerHTML=
   pcell("stair","rise","Total rise", fvL(d.rise), true)+pcell("stair","target","Max riser", fvIn(d.target), true)+pcell("stair","tread","Tread depth", fvIn(d.tread), true)+
@@ -126,7 +126,7 @@ function fillField(kind,field){
   if(kind==="roof"){ if(field==="pitch") roofSetField(d,"pitch",cur.n); else roofSetField(d,field,asInches(cur)); renderRoofPop(); }
   else {
     if(field==="rise") stairSetField(d,"rise",asInches(cur));
-    else if(field==="target"||field==="tread"||field==="surface") stairSetField(d,field,(cur.dim===BT.SCALAR&&SYS==="met")?cur.n/25.4:cur.n);
+    else if(field==="target"||field==="tread"||field==="surface") stairSetField(d,field,(cur.dim===PB.SCALAR&&SYS==="met")?cur.n/25.4:cur.n);
     else if(field==="landRiser") stairSetField(d,"landRiser",Math.max(0,Math.round(cur.n)));
     renderStairPop();
   }
@@ -142,7 +142,7 @@ function entryMain(){
   var e=c.e;
   if(e.loaded && e.buf==="" && !e.hasUnit && e.num==null) return fv(e.loaded);
   if(e.hasUnit || e.num!=null){
-    var s=fv({n:e.inches,dim:BT.LINEAR,u:(e.basis|| (e.num!=null?"in":null))});
+    var s=fv({n:e.inches,dim:PB.LINEAR,u:(e.basis|| (e.num!=null?"in":null))});
     if(e.num!=null) s += " "+e.num+"/"+(e.buf||"_");
     else if(e.buf!=="") s += " +"+e.buf;
     return s;
@@ -193,7 +193,7 @@ function render(){
   var gt=grandTotal();
   if(fr.error||gt.error){ T.grand.textContent="Error"; T.gdim.textContent=fr.error||gt.error; }
   else if(gt.mixed){ T.grand.textContent=fv(gt.last); T.gdim.textContent="mixed \u2014 last calc"; }
-  else { T.grand.textContent=fv(gt.acc); T.gdim.textContent=BT.dimName(gt.acc.dim)||"Number"; }
+  else { T.grand.textContent=fv(gt.acc); T.gdim.textContent=PB.dimName(gt.acc.dim)||"Number"; }
   T.mem.style.display = c.memory? "inline-block":"none";
   if(c.memory) T.mem.textContent="M "+fv(c.memory);
   save();
@@ -210,10 +210,10 @@ function grandTotal(){
       var seg=c.steps.slice(start,i); start=i+1;
       var has=false; for(var q=0;q<seg.length;q++){ if(seg[q].val && !seg[q].info){ has=true; break; } }
       if(!has) continue;
-      var f=BT.fold(seg);
+      var f=PB.fold(seg);
       if(f.error){ err=f.error; continue; }
       if(!res) res={n:f.acc.n,dim:f.acc.dim,u:f.acc.u};
-      else { var r=BT.combine(res,"+",f.acc); if(r.error){ return {mixed:true,last:f.acc,error:err}; } res={n:r.n,dim:r.dim,u:r.u}; }
+      else { var r=PB.combine(res,"+",f.acc); if(r.error){ return {mixed:true,last:f.acc,error:err}; } res={n:r.n,dim:r.dim,u:r.u}; }
     }
   }
   return {acc:res||{n:0,dim:0}, error:err};
@@ -266,7 +266,7 @@ function press(k){
       if(c.hasInput() && !isPristineLoaded()){ c.backspace(); render(); return; }
       deleteLineUp(); render(); return;
     }
-    if(isPristineLoaded() && c.e.loaded.dim===BT.LINEAR && (k==="feet"||k==="inch"||k==="yd")){
+    if(isPristineLoaded() && c.e.loaded.dim===PB.LINEAR && (k==="feet"||k==="inch"||k==="yd")){
       c.e.loaded.u = (k==="feet"?"ft":k==="inch"?"in":"yd"); render(); return;
     }
     if(isEntryKey(k)){ applyEntryKey(k); render(); return; }
@@ -307,7 +307,7 @@ function press(k){
     case "hipv":  openRoofPop(); break;
     case "stair": { var v=answerVal(); if(v){ stairSetField(stairD,"rise",asInches(v)); c.clearEntry(); } openStairPop(); break; }
     case "circ": { var cc=c.circle(); c.steps.push({info:true,vtext:fv(cc.diam),text:"circle \u2300"}); c.steps.push({info:true,vtext:fv(cc.circ),text:"circumference"}); c.steps.push({info:true,vtext:fv(cc.area),text:"area"}); c.loadValue(cc.area); break; }
-    case "bdft": { var b=c.boardFeet(); if(b.error){toast(b.error);} else { c.steps.push({info:true,vtext:BT.fmtNum(b.n),text:"board feet"}); c.loadValue(b); } break; }
+    case "bdft": { var b=c.boardFeet(); if(b.error){toast(b.error);} else { c.steps.push({info:true,vtext:PB.fmtNum(b.n),text:"board feet"}); c.loadValue(b); } break; }
   }
   render();
 }
@@ -403,7 +403,7 @@ el("mSave").addEventListener("click",function(){ downloadTape(); });
 
 /* roof/stair -> tape — one item per line */
 function roofToTape(){ var d=roofD; if(d.rise==null){ toast("Enter two of pitch/run/rise/diag"); return; }
-  c.steps.push({info:true,text:"ROOF \u2014 "+BT.fmtNum(d.pitch,2)+"/12 pitch, "+BT.fmtNum(d.angle,1)+"\u00b0"});
+  c.steps.push({info:true,text:"ROOF \u2014 "+PB.fmtNum(d.pitch,2)+"/12 pitch, "+PB.fmtNum(d.angle,1)+"\u00b0"});
   c.steps.push({info:true,vtext:fvL(d.rise),text:"rise"});
   c.steps.push({info:true,vtext:fvL(d.run),text:"run"});
   c.steps.push({info:true,vtext:fvL(d.diag),text:"common rafter"});
@@ -441,7 +441,7 @@ function tapeText(){
     var op=s.carry?">":s.op==="+"?"+":s.op==="-"?"-":s.op==="*"?"x":"/";
     out.push((idx===1?" ":op)+" "+pad(fv(s.val))+(s.note?"   "+s.note:""));
   }
-  out.push(""); out.push("TOTAL: "+(fr.error?("Error \u2014 "+fr.error):fv(fr.acc))+"  "+(BT.dimName(fr.acc.dim)||""));
+  out.push(""); out.push("TOTAL: "+(fr.error?("Error \u2014 "+fr.error):fv(fr.acc))+"  "+(PB.dimName(fr.acc.dim)||""));
   return out.join("\n");
 }
 function downloadTape(){
@@ -452,7 +452,10 @@ function downloadTape(){
   }catch(e){ toast("Save not supported here"); }
 }
 
-/* ---------- persistence ---------- */
+/* ---------- persistence ----------
+   NB: the localStorage keys ("buildtally", "bt_set", plus "bt_tabs"/"bt_kpos"
+   in desktop.js) predate the PocketBuilder name and are kept as-is on purpose —
+   renaming them would orphan every existing user's saved tapes and settings. */
 function save(){ try{ localStorage.setItem("buildtally", JSON.stringify({steps:c.steps,mem:c.memory,roofD:roofD,stairD:stairD})); }catch(e){} }
 function saveSettings(){ try{ localStorage.setItem("bt_set", JSON.stringify({SYS:SYS,FRAC:FRAC,STYLE:STYLE,PAPER:PAPER,LAYOUT:LAYOUT})); }catch(e){} }
 function load(){

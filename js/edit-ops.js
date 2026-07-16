@@ -8,7 +8,7 @@
       var st=i, en=n;
       for(j=i;j<n;j++){ if(c.steps[j].sep){ en=j; break; } }
       for(j=st;j<en;j++){ var s=c.steps[j]; if(s.info) continue; if(s.val){ if(s.carry && prev) s.val={n:prev.n,dim:prev.dim,u:prev.u}; break; } }
-      var res=BT.fold(c.steps.slice(st,en)).acc;
+      var res=PB.fold(c.steps.slice(st,en)).acc;
       for(j=en-1;j>=st;j--){ if(c.steps[j].sub){ c.steps[j].text="= "+fv(res); break; } }
       prev=res; i=en+1;
     }

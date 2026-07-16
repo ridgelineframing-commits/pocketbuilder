@@ -1,4 +1,4 @@
-/* BuilderTape engine v5 — roof solver + tape blocks + repeat-equals + unit-basis display */
+/* PocketBuilder engine v5 — roof solver + tape blocks + repeat-equals + unit-basis display */
 (function(global){
 "use strict";
 var SCALAR=0, LINEAR=1, AREA=2, VOLUME=3;
@@ -177,5 +177,5 @@ Calc.prototype.convertDisplay=function(unit){
 Calc.prototype.circle=function(){ var v=this.current(); var d=v.dim===SCALAR?v.n*12:v.n; return { diam:{n:d,dim:LINEAR}, circ:{n:Math.PI*d,dim:LINEAR}, area:{n:Math.PI*(d/2)*(d/2),dim:AREA} }; };
 Calc.prototype.boardFeet=function(){ var v=this.current(); if(v.dim!==VOLUME) return {error:"Bd Ft needs a volume (e.g. 2in × 6in × 8ft)"}; return {n:v.n/144, dim:SCALAR}; };
 var API={ SCALAR:SCALAR,LINEAR:LINEAR,AREA:AREA,VOLUME:VOLUME, fmtFtIn:fmtFtIn,fmtInchesOnly:fmtInchesOnly,fmtYards:fmtYards,fmtNum:fmtNum,fmtVal:fmtVal,fmtMetric:fmtMetric,dimName:dimName, combine:combine,fold:fold,Calc:Calc };
-if(typeof module!=="undefined"&&module.exports) module.exports=API; else global.BT=API;
+if(typeof module!=="undefined"&&module.exports) module.exports=API; else global.PB=API;
 })(typeof window!=="undefined"?window:globalThis);

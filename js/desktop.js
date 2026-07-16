@@ -5,7 +5,7 @@
 
   /* neutralize the fixed-canvas scaler; let the tape grow, keep the keypad fixed */
   function desk(){
-    var g=document.getElementById("bt-grow-css"); if(g) g.remove();
+    var g=document.getElementById("pb-grow-css"); if(g) g.remove();
     var css=[
       "html,body{overflow:hidden !important;}",
       "#device{transform:none !important;width:min(96vw,920px) !important;height:100dvh !important;max-height:none !important;",
@@ -31,7 +31,7 @@
       "body.kside #keys{grid-column:2;grid-row:3/6;margin:0;align-self:stretch;width:316px;max-width:316px;",
       "border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:flex-start;background:var(--chrome);padding-top:6px;}"
     ].join("");
-    var st=document.createElement("style"); st.id="bt-desktop-css"; st.textContent=css;
+    var st=document.createElement("style"); st.id="pb-desktop-css"; st.textContent=css;
     document.head.appendChild(st);
     var dev=document.getElementById("device"); if(dev) dev.style.transform="";
     /* keypad position option in the menu (desktop only) */
