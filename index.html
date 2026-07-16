@@ -126,6 +126,29 @@
   .notebar .nlab{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--keysub);flex:0 0 auto;}
   .notebar input{flex:1;min-width:0;font-size:16px;background:var(--paper);color:var(--papertxt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;-webkit-user-select:text;user-select:text;}
   .notebar .nbtn{flex:0 0 auto;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+
+  /* ===== Notepad tape — 26px ruling rhythm, every line type locked to the rule ===== */
+  #tape{font-family:ui-monospace,'Cascadia Mono',Consolas,'Courier New',monospace;padding-top:26px;padding-bottom:10px;}
+  #tape .tline{grid-template-columns:22px max-content minmax(0,1fr);gap:0;padding:0 36px 0 44px;min-height:26px;line-height:26px;align-items:baseline;position:relative;}
+  #tape .tline.active{min-height:26px;} #tape .tline.sep{min-height:26px;} #tape .tline.subtotal{min-height:26px;}
+  #tape .tline .op{font-size:14px;text-align:right;padding-right:8px;color:var(--papertxt);font-weight:700;min-width:0;}
+  #tape .tline .val{font-size:15.5px;font-weight:700;text-align:left;white-space:nowrap;min-width:0;overflow:visible;padding:0;color:var(--papertxt);}
+  #tape .tline.active .val{font-size:15.5px;font-weight:700;color:var(--papertxt);}
+  #tape .tline .note{font-size:12.5px;font-style:italic;color:var(--papernote);text-align:left;justify-self:start;align-self:baseline;padding:0 0 0 22px;max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:26px;}
+  #tape .tline .note:empty{display:none;}
+  #tape .tline > .op,#tape .tline > .val,#tape .tline > .note,#tape .tline > .txt{position:relative;top:6px;}
+  #tape .tline.subtotal .val{border-top:2px solid var(--papertxt);padding-top:0;font-weight:800;font-size:15.5px;white-space:nowrap;font-style:normal;}
+  #tape .tline.calcnote .val{font-weight:600;}
+  #tape .tline.prose{grid-template-columns:22px minmax(0,1fr);}
+  #tape .tline.prose .txt{grid-column:2;font-size:12.5px;font-weight:600;font-style:italic;color:var(--papernote);white-space:normal;overflow-wrap:anywhere;padding-right:8px;line-height:26px;}
+  #tape .tline.caret .val::after{height:14px;vertical-align:-2px;}
+  .tapewrap{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 25px,var(--paperline) 25px,var(--paperline) 26px),
+    linear-gradient(to right,transparent 38px,var(--papermargin) 38px,var(--papermargin) 40px,transparent 40px) !important;
+    background-attachment:local,local !important;background-repeat:repeat,no-repeat !important;}
+  .emptytape{padding-left:48px;line-height:26px;padding-top:0;}
+  #tape .tline .cpy{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:13px;line-height:1;font-style:normal;
+    color:var(--papermut);opacity:0;cursor:pointer;padding:4px 6px;border-radius:6px;transition:opacity .12s;}
+  @media (hover:hover){#tape .tline:hover .cpy{opacity:1;} #tape .tline .cpy:hover{color:var(--papertxt);background:rgba(0,0,0,0.07);}}
 </style>
 </head>
 <body>
@@ -311,8 +334,7 @@ function fold(steps){
   if(!acc) acc={n:0,dim:SCALAR};
   return {acc:acc, run:run, error:err, errAt:errAt};
 }
-function newRoof(){ return {rise:null,run:null,diag:null,pitch:null,hip:null,angle:null,given:[]}; }
-function Calc(){ this.steps=[]; this.pendingOp="+"; this.justEval=false; this.memory=null; this.roof=newRoof(); this._newEntry(); }
+function Calc(){ this.steps=[]; this.pendingOp="+"; this.justEval=false; this.memory=null; this._newEntry(); }
 Calc.prototype._newEntry=function(){ this.e={ inches:0, dim:SCALAR, buf:"", num:null, hasUnit:false, loaded:null, basis:null }; };
 Calc.prototype.hasInput=function(){ var e=this.e; return e.buf!=="" || e.hasUnit || e.num!=null || e.inches!==0 || !!e.loaded; };
 Calc.prototype.loadValue=function(val){ this._newEntry(); this.e.loaded={n:val.n,dim:val.dim,u:val.u}; this.justEval=false; };
@@ -340,7 +362,7 @@ Calc.prototype.inputUnit=function(unit){
 Calc.prototype.inputFrac=function(){ if(this.e.buf!==""){ this.e.num=parseFloat(this.e.buf); this.e.buf=""; } else if(this.e.num==null){ this.e.num=0; } };
 Calc.prototype.backspace=function(){ var e=this.e; if(e.loaded){ this._newEntry(); return; } if(e.buf!==""){ e.buf=e.buf.slice(0,-1); } else if(e.num!=null){ e.num=null; } else if(e.hasUnit){ this._newEntry(); } };
 Calc.prototype.clearEntry=function(){ this._newEntry(); };
-Calc.prototype.allClear=function(){ this.steps=[]; this.pendingOp="+"; this.justEval=false; this.roof=newRoof(); this._newEntry(); };
+Calc.prototype.allClear=function(){ this.steps=[]; this.pendingOp="+"; this.justEval=false; this._newEntry(); };
 Calc.prototype._commit=function(op){ if(this.hasInput()){ this.steps.push({op:this.pendingOp, val:this.finalizeEntry(), note:""}); this._newEntry(); } if(op!=null) this.pendingOp=op; };
 Calc.prototype.operator=function(op){
   if(this.justEval){ this.justEval=false; this.pendingOp=op; return; }
@@ -392,38 +414,6 @@ Calc.prototype.convertDisplay=function(unit){
   return fmtNum(v.n);
 };
 
-/* ===== ROOF TRIANGLE SOLVER ===== */
-Calc.prototype.roofSet=function(key, valObj){
-  var R=this.roof, v;
-  if(key==="pitch") v = valObj.n;
-  else v = (valObj.dim===SCALAR ? valObj.n*12 : valObj.n);
-  R[key]=v;
-  R.given = R.given.filter(function(k){return k!==key;});
-  R.given.push(key);
-  if(R.given.length>2) R.given.shift();
-  this._solveRoof();
-  this._newEntry(); this.justEval=false;
-};
-Calc.prototype._solveRoof=function(){
-  var R=this.roof, g=R.given;
-  if(g.length<2) return;
-  var kv={}; kv[g[0]]=R[g[0]]; kv[g[1]]=R[g[1]];
-  var rise=('rise'in kv)?kv.rise:null, run=('run'in kv)?kv.run:null,
-      diag=('diag'in kv)?kv.diag:null, pitch=('pitch'in kv)?kv.pitch:null;
-  if(rise!=null && run!=null){ }
-  else if(rise!=null && diag!=null){ if(diag<rise) return; run=Math.sqrt(diag*diag-rise*rise); }
-  else if(run!=null && diag!=null){ if(diag<run) return; rise=Math.sqrt(diag*diag-run*run); }
-  else if(rise!=null && pitch!=null){ run = pitch!==0 ? rise*12/pitch : 0; }
-  else if(run!=null && pitch!=null){ rise = run*pitch/12; }
-  else if(diag!=null && pitch!=null){ var th=Math.atan2(pitch,12); rise=diag*Math.sin(th); run=diag*Math.cos(th); }
-  if(rise==null||run==null) return;
-  diag=Math.sqrt(rise*rise+run*run);
-  pitch = run!==0 ? rise/run*12 : 0;
-  R.rise=rise; R.run=run; R.diag=diag; R.pitch=pitch;
-  R.hip = Math.sqrt((run*Math.SQRT2)*(run*Math.SQRT2)+rise*rise);
-  R.angle = Math.atan2(rise,run)*180/Math.PI;
-};
-Calc.prototype.roofClear=function(){ this.roof=newRoof(); };
 Calc.prototype.circle=function(){ var v=this.current(); var d=v.dim===SCALAR?v.n*12:v.n; return { diam:{n:d,dim:LINEAR}, circ:{n:Math.PI*d,dim:LINEAR}, area:{n:Math.PI*(d/2)*(d/2),dim:AREA} }; };
 Calc.prototype.boardFeet=function(){ var v=this.current(); if(v.dim!==VOLUME) return {error:"Bd Ft needs a volume (e.g. 2in × 6in × 8ft)"}; return {n:v.n/144, dim:SCALAR}; };
 var API={ SCALAR:SCALAR,LINEAR:LINEAR,AREA:AREA,VOLUME:VOLUME, fmtFtIn:fmtFtIn,fmtInchesOnly:fmtInchesOnly,fmtYards:fmtYards,fmtNum:fmtNum,fmtVal:fmtVal,fmtMetric:fmtMetric,dimName:dimName, combine:combine,fold:fold,Calc:Calc };
@@ -895,9 +885,8 @@ function load(){
 }
 load(); applyStyle(STYLE); applyPaper(PAPER); applyLayout(LAYOUT); applySystem();
 
-/* ---------- PWA ---------- */
+/* ---------- PWA: register the service worker ---------- */
 (function(){
-  /* (removed unused inline manifest/sw strings) */
   if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
     try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){}
   }
@@ -951,38 +940,6 @@ load(); applyStyle(STYLE); applyPaper(PAPER); applyLayout(LAYOUT); applySystem()
 
 </script>
 <script>
-/* ---------- Notepad tape v4 — 26px rhythm, every line type locked to the ruling ---------- */
-(function(){
-  var css=
-    "#tape{font-family:ui-monospace,'Cascadia Mono',Consolas,'Courier New',monospace;padding-top:26px;padding-bottom:10px;}"+
-    "#tape .tline{grid-template-columns:22px max-content minmax(0,1fr);gap:0;padding:0 36px 0 44px;min-height:26px;line-height:26px;align-items:baseline;position:relative;}"+
-    /* every variant pinned to the same 26px rhythm — no more drift */
-    "#tape .tline.active{min-height:26px;} #tape .tline.sep{min-height:26px;} #tape .tline.subtotal{min-height:26px;}"+
-    "#tape .tline .op{font-size:14px;text-align:right;padding-right:8px;color:var(--papertxt);font-weight:700;min-width:0;}"+
-    "#tape .tline .val{font-size:15.5px;font-weight:700;text-align:left;white-space:nowrap;min-width:0;overflow:visible;padding:0;color:var(--papertxt);}"+
-    "#tape .tline.active .val{font-size:15.5px;font-weight:700;color:var(--papertxt);}"+
-    "#tape .tline .note{font-size:12.5px;font-style:italic;color:var(--papernote);text-align:left;justify-self:start;align-self:baseline;"+
-      "padding:0 0 0 22px;max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:26px;}"+
-    "#tape .tline .note:empty{display:none;}"+
-    "#tape .tline > .op,#tape .tline > .val,#tape .tline > .note,#tape .tline > .txt{position:relative;top:6px;}"+
-    "#tape .tline.subtotal .val{border-top:2px solid var(--papertxt);padding-top:0;font-weight:800;font-size:15.5px;white-space:nowrap;font-style:normal;}"+
-    "#tape .tline.calcnote .val{font-weight:600;}"+
-    "#tape .tline.prose{grid-template-columns:22px minmax(0,1fr);}"+
-    "#tape .tline.prose .txt{grid-column:2;font-size:12.5px;font-weight:600;font-style:italic;color:var(--papernote);white-space:normal;overflow-wrap:anywhere;padding-right:8px;line-height:26px;}"+
-    "#tape .tline.caret .val::after{height:14px;vertical-align:-2px;}"+
-    ".tapewrap{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 25px,var(--paperline) 25px,var(--paperline) 26px),"+
-      "linear-gradient(to right,transparent 38px,var(--papermargin) 38px,var(--papermargin) 40px,transparent 40px) !important;"+
-      "background-attachment:local,local !important;background-repeat:repeat,no-repeat !important;}"+
-    ".emptytape{padding-left:48px;line-height:26px;padding-top:0;}"+
-    "#tape .tline .cpy{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:13px;line-height:1;font-style:normal;"+
-      "color:var(--papermut);opacity:0;cursor:pointer;padding:4px 6px;border-radius:6px;transition:opacity .12s;}"+
-    "@media (hover:hover){#tape .tline:hover .cpy{opacity:1;} #tape .tline .cpy:hover{color:var(--papertxt);background:rgba(0,0,0,0.07);}}";
-  var st=document.createElement("style"); st.id="bt-notepad-css"; st.textContent=css;
-  (document.head||document.documentElement).appendChild(st);
-  try{ if(typeof render==="function") render(); }catch(e){}
-})();
-
-</script><script>
 /* ---------- Edit a line's OPERATION on the tape (3+3 -> tap line, press x -> 3x3) ---------- */
 (function(){
   var OPMAP={add:"+",sub:"-",mul:"*",div:"/"};
@@ -1020,21 +977,6 @@ load(); applyStyle(STYLE); applyPaper(PAPER); applyLayout(LAYOUT); applySystem()
     }
     return orig(k);
   };
-})();
-
-</script>
-<script>
-/* ---------- Brand: PocketBuilder ---------- */
-(function(){
-  var NAME="PocketBuilder";
-  try{ document.title=NAME; }catch(e){}
-  function apply(){
-    try{ var nb=document.getElementById("nameBtn"); if(nb) nb.innerHTML=NAME+' <span class="caret">▾</span>'; }catch(e){}
-    try{ var h=document.querySelector("#menu .sheet h4"); if(h) h.textContent=NAME; }catch(e){}
-    try{ var m=document.querySelector('meta[name="apple-mobile-web-app-title"]'); if(m) m.setAttribute("content","PocketBuilder"); }catch(e){}
-    /* static manifest.webmanifest is the installable one - do not override at runtime */
-  }
-  if(document.readyState!=="loading") apply(); else document.addEventListener("DOMContentLoaded",apply);
 })();
 
 </script>
@@ -1127,7 +1069,7 @@ load(); applyStyle(STYLE); applyPaper(PAPER); applyLayout(LAYOUT); applySystem()
   function persist(){ try{ localStorage.setItem("bt_tabs", JSON.stringify({tabs:tabs, act:act})); }catch(e){} }
   function loadTab(i){
     act=i; var t=tabs[i];
-    c.steps=t.steps||[]; c.memory=c.memory; c.justEval=false; c.pendingOp="+"; c.clearEntry();
+    c.steps=t.steps||[]; c.justEval=false; c.pendingOp="+"; c.clearEntry();
     window.roofD=t.roofD||makeRoofD(); window.stairD=t.stairD||makeStairD();
     window.editTarget=null; window.convMode=false;
     var rp=document.getElementById("roofpop"), sp=document.getElementById("stairpop");
