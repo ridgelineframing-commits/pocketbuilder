@@ -102,6 +102,8 @@
   .swatch{width:34px;height:34px;border-radius:8px;border:2px solid #3a3f47;cursor:pointer;flex:0 0 auto;}
   .swatch.on{border-color:var(--accent2);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent2) 35%,transparent);}
   .menubtns{display:flex;gap:10px;margin-top:6px;}
+  .menufoot{text-align:center;margin-top:12px;font-size:11px;color:var(--keysub);}
+  .menufoot a{color:var(--keysub);text-decoration:underline;}
   .btn{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 15px;font-size:14px;font-weight:700;cursor:pointer;flex:1;}
   .btn.alt{background:var(--keyfn);border:1px solid var(--line);color:var(--keytxt);}
   .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1f2226;color:#eef0f2;border:1px solid var(--accent);padding:9px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .25s;z-index:60;pointer-events:none;max-width:90%;text-align:center;} .toast.on{opacity:1;}
