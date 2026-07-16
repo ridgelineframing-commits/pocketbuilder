@@ -17,6 +17,15 @@ Builder's tape calculator & notepad — feet-inch fractions, area/volume math, r
 ## Run it
 Open `index.html` in a browser — that's it. For the installable PWA experience it must be served over HTTPS (see Deploy).
 
+## Tests
+The calculator engine has a unit-test suite (no dependencies). Run it with:
+
+```
+node --test
+```
+
+CI (`.github/workflows/ci.yml`) runs the same suite on every pull request and push to `main`.
+
 ## Deploy (GitHub Pages)
 This repo ships with a Pages workflow (`.github/workflows/deploy-pages.yml`).
 
