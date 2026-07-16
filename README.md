@@ -17,6 +17,15 @@ Builder's tape calculator & notepad — feet-inch fractions, area/volume math, r
 ## Run it
 Open `index.html` in a browser — that's it. For the installable PWA experience it must be served over HTTPS (see Deploy).
 
+## Tests
+The calculator engine has a unit-test suite (no dependencies). Run it with:
+
+```
+node --test
+```
+
+CI (`.github/workflows/ci.yml`) runs the same suite on every pull request and push to `main`.
+
 ## Deploy (GitHub Pages)
 This repo ships with a Pages workflow (`.github/workflows/deploy-pages.yml`).
 
@@ -32,7 +41,7 @@ This repo ships with a Pages workflow (`.github/workflows/deploy-pages.yml`).
    - **.aab** — for the Google Play Store
    - **.apk** — for direct install/sideloading on a phone
 3. Keep the generated **signing key** — the same key is required for every future update
-4. For a fully chromeless app (no browser bar), host `assetlinks.json` at `https://<origin>/.well-known/assetlinks.json`
+4. For a fully chromeless app (no browser bar), host `assetlinks.json` at `https://<origin>/.well-known/assetlinks.json`. A ready-to-fill template is included at [`.well-known/assetlinks.json`](.well-known/assetlinks.json) — add your signing-key SHA-256 fingerprint and host it at the domain **root** (see `PLAY-STORE-STEPS.md` for the exact steps).
    - ⚠️ On GitHub *project* pages that path sits at the domain root, which you only control via a repo named `<user>.github.io`. Easiest fixes: put `.well-known/assetlinks.json` in that user-site repo, or deploy to Netlify where you control the root.
 
 Full Play Store checklist: see `PLAY-STORE-STEPS.md`.

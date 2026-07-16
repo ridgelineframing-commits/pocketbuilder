@@ -41,6 +41,19 @@ jobs:
       - name: Decode signing keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android.keystore
 
+      - name: Stamp a unique version code
+        run: |
+          # Google Play requires a strictly-increasing integer versionCode on
+          # every upload, and the release below is tagged v<versionCode> — so a
+          # fixed code means every build re-publishes the same tag. Derive the
+          # code from the monotonic CI run number so each build is unique.
+          # appVersionName stays manually controlled in twa-manifest.json (the
+          # marketing version); only the integer code is stamped here.
+          CODE="${{ github.run_number }}"
+          jq --argjson c "$CODE" '.appVersionCode = $c' twa-manifest.json > twa-manifest.json.tmp
+          mv twa-manifest.json.tmp twa-manifest.json
+          echo "Stamped appVersionCode=$CODE"
+
       - name: Generate TWA project
         run: bubblewrap update --skipVersionUpgrade
 
@@ -57,20 +70,20 @@ jobs:
           echo "name=$(jq -r .appVersionName twa-manifest.json)" >> "$GITHUB_OUTPUT"
 
       - name: Rename APK for release
-        run: cp app-release-signed.apk "pocketbuilder-v${{ steps.version.outputs.name }}.apk"
+        run: cp app-release-signed.apk "pocketbuilder-v${{ steps.version.outputs.name }}-build${{ steps.version.outputs.code }}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: pocketbuilder-apk
-          path: pocketbuilder-v${{ steps.version.outputs.name }}.apk
+          path: pocketbuilder-v${{ steps.version.outputs.name }}-build${{ steps.version.outputs.code }}.apk
           if-no-files-found: error
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.code }}
-          name: PocketBuilder v${{ steps.version.outputs.name }}
-          files: pocketbuilder-v${{ steps.version.outputs.name }}.apk
+          name: PocketBuilder v${{ steps.version.outputs.name }} (build ${{ steps.version.outputs.code }})
+          files: pocketbuilder-v${{ steps.version.outputs.name }}-build${{ steps.version.outputs.code }}.apk
           fail_on_unmatched_files: true
           make_latest: true
