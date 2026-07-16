@@ -1,11 +1,9 @@
 /*
- * Unit tests for the PocketBuilder calculator engine.
+ * Unit tests for the PocketBuilder calculator engine (js/engine.js).
  *
- * The engine currently lives inline in index.html (the "BuilderTape engine"
- * <script> block). Rather than duplicate it, we extract that block at test
- * time and evaluate it as a CommonJS-style module — the block already does
- * `module.exports = API` when a `module` object is present. When the engine is
- * eventually split into its own file, only loadEngine() below needs to change.
+ * The engine is a UMD module: it does `module.exports = API` when a `module`
+ * object is present, else `global.BT = API`. We load its source and evaluate
+ * it with a fake `module` so the tests get the API object directly.
  *
  * Run with:  node --test
  */
@@ -17,10 +15,7 @@ import { dirname, join } from "node:path";
 
 function loadEngine() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-  const html = readFileSync(join(root, "index.html"), "utf8");
-  const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
-  const source = blocks.find((b) => b.includes("BuilderTape engine"));
-  if (!source) throw new Error("engine <script> block not found in index.html");
+  const source = readFileSync(join(root, "js", "engine.js"), "utf8");
   const mod = { exports: {} };
   const factory = new Function(
     "module",
