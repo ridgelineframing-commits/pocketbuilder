@@ -17,15 +17,32 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="device">
-  <span class="screw s1"></span><span class="screw s2"></span><span class="screw s3"></span><span class="screw s4"></span>
-  <div id="app">
-    <header>
-      <button class="namebtn" id="nameBtn">PocketBuilder <span class="caret">&#9662;</span></button>
-      <div class="sp"></div>
-      <span class="memchip" id="mem"></span>
-      <button class="hbtn" id="kbBtn">abc</button>
-    </header>
+<div id="app">
+
+  <header id="toolbar">
+    <button class="brand" id="nameBtn">Pocket<span>Builder</span></button>
+    <div class="grp">
+      <button class="tb" id="undoB" title="Undo (Ctrl+Z)">&#8630; Undo</button>
+      <button class="tb" id="redoB" title="Redo (Ctrl+Y)">&#8631; Redo</button>
+    </div>
+    <div class="grp">
+      <button class="tb" data-fn="roof">Roof</button>
+      <button class="tb" data-fn="stair">Stair</button>
+      <button class="tb" data-fn="circ">Circle</button>
+      <button class="tb" data-fn="conv">Convert</button>
+    </div>
+    <span class="sp"></span>
+    <div class="grp">
+      <button class="tb" id="kbBtn" title="Add a note to a line">abc</button>
+      <button class="tb" data-fn="share">Share</button>
+      <button class="tb" data-fn="save">Save</button>
+      <button class="tb icon" id="menuBtn" title="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <div id="tabbar"></div>
+
+  <div class="main">
     <div class="taparea">
       <div class="tapewrap" id="tape"></div>
       <div class="toppanel" id="roofpop">
@@ -38,53 +55,41 @@
         <div id="staircells"></div>
         <div class="tpbtns"><button class="btn" id="stairToTape">&rarr; Tape</button></div>
       </div>
+      <div class="notebar" id="noteBar"><span class="nlab">Note</span><input id="noteInput" type="text" placeholder="label this line&#8230;" autocomplete="off" autocorrect="off" autocapitalize="sentences"><button class="nbtn" id="noteDone">Done</button></div>
     </div>
-    <div class="grandbar"><span class="lab">Total</span><span class="gt" id="grand">0</span><span class="gd" id="gdim"></span></div>
-    <div class="notebar" id="noteBar"><span class="nlab">Note</span><input id="noteInput" type="text" placeholder="label this line&#8230;" autocomplete="off" autocorrect="off" autocapitalize="sentences"><button class="nbtn" id="noteDone">Done</button></div>
-    <div id="keys">
-      <div class="pad" id="pad">
-        <button class="key roof" data-k="pitch">Pitch</button><button class="key roof" data-k="rise">Rise</button><button class="key roof" data-k="run">Run</button><button class="key roof" data-k="diag">Diag</button><button class="key roof" data-k="hipv">Hip/V</button>
-        <button class="key fn" data-k="bdft">Bd Ft</button><button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button><button class="key fn" data-k="sqrt">&#8730;x</button>
-        <button class="key fn" id="u0" data-k="yd">Yds</button><button class="key fn" id="u1" data-k="feet">Feet</button><button class="key fn" id="u2" data-k="inch">Inch</button><button class="key fn" id="fracKey" data-k="frac">/<small>frac</small></button><button class="key fn" data-k="bk">&#9003;</button>
-        <button class="key mem" data-k="rcl">Rcl</button><button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="div">&divide;</button>
-        <button class="key mem" data-k="mplus">M+</button><button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="mul">&times;</button>
-        <button class="key mem" data-k="mminus">M&minus;</button><button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="sub">&minus;</button>
-        <button class="key ac" data-k="ac">AC</button><button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key" data-k="pm">&plusmn;</button><button class="key op" data-k="add">+</button>
-        <button class="key fn" data-k="pct">%</button><button class="key eq" style="grid-column:span 4" data-k="eq">= <small>sum / space</small></button>
+
+    <aside id="keys">
+      <div class="np">
+        <button class="key unit" id="u0" data-k="feet">Feet</button><button class="key unit" id="u1" data-k="inch">Inch</button><button class="key unit" id="u2" data-k="frac">/</button><button class="key op" data-k="bk" id="bkKey" title="Backspace &mdash; hold to clear all">&#9003;</button>
+        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="div">&divide;</button>
+        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="mul">&times;</button>
+        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="sub">&minus;</button>
+        <button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key eq" data-k="eq">=</button><button class="key op" data-k="add">+</button>
       </div>
-      <div class="padred" id="padred">
-        <button class="key roof" data-k="pitch">Pitch</button><button class="key roof" data-k="rise">Rise</button><button class="key roof" data-k="run">Run</button><button class="key roof" data-k="diag">Diag</button>
-        <button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button><button class="key fn" data-k="bk">&#9003;</button>
-        <button class="key fn" data-k="feet">Feet</button><button class="key fn" data-k="inch">Inch</button><button class="key fn" data-k="frac">/<small>frac</small></button><button class="key op" data-k="div">&divide;</button>
-        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="mul">&times;</button>
-        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="sub">&minus;</button>
-        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="add">+</button>
-        <button class="key ac" data-k="ac">AC</button><button class="key" data-k="0">0</button><button class="key" data-k="pm">&plusmn;</button><button class="key" data-k="dot">.</button>
-        <button class="key eq" style="grid-column:span 4" data-k="eq">= <small>sum / space</small></button>
-      </div>
-      <div class="padmin" id="padmin">
-        <button class="key ac" data-k="ac">AC</button><button class="key fn" data-k="bk">&#9003;</button><button class="key fn" data-k="frac">/<small>frac</small></button><button class="key op" data-k="div">&divide;</button>
-        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="mul">&times;</button>
-        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="sub">&minus;</button>
-        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="add">+</button>
-        <button class="key fn" data-k="feet">Feet</button><button class="key fn" data-k="inch">Inch</button><button class="key" data-k="pm">&plusmn;</button><button class="key" data-k="dot">.</button>
-        <button class="key" style="grid-column:span 2" data-k="0">0</button><button class="key eq" style="grid-column:span 2" data-k="eq">=</button>
-      </div>
-    </div>
+    </aside>
   </div>
-  <div class="chin">Ridgeline Construction &bull; ft-in / metric</div>
+
+  <footer id="statusbar">
+    <span class="st-lab">Block</span><span class="st-val" id="blockTot">0</span>
+    <div class="minis">
+      <button class="mini" data-k="pm">&plusmn;</button>
+      <button class="mini" data-k="pct">%</button>
+      <button class="mini" data-k="mplus">M+</button>
+      <button class="mini" data-k="mminus">M&minus;</button>
+      <button class="mini" data-k="rcl">MR</button>
+    </div>
+    <span class="memchip" id="mem"></span>
+    <span class="sp"></span>
+    <span class="st-lab">Grand total</span><span class="st-grand" id="grand">0</span><span class="st-dim" id="gdim"></span>
+  </footer>
+
 </div>
 
 <div class="scrim" id="menu"><div class="sheet">
   <h4>PocketBuilder</h4>
   <div class="mrow"><div class="ml">Units</div><div class="seg" id="unitSeg"><button data-u="imp">Imperial</button><button data-u="met">Metric</button></div></div>
   <div class="mrow"><div class="ml">Fraction precision</div><div class="seg" id="fracSeg"><button data-fr="8">1/8</button><button data-fr="16">1/16</button><button data-fr="32">1/32</button></div></div>
-  <div class="mrow"><div class="ml">Keypad</div><div class="seg" id="layoutSeg"><button data-ly="full">Full</button><button data-ly="reduced">Reduced</button><button data-ly="minimal">Minimal</button></div></div>
-  <div class="mrow"><div class="ml">Case</div><div class="seg" id="styleSeg">
-    <button data-st="graphite">Graphite</button><button data-st="steel">Steel</button><button data-st="navy">Navy</button><button data-st="forest">Forest</button><button data-st="sand">Sand</button><button data-st="crimson">Crimson</button>
-    <button data-st="wood">Carpenter</button><button data-st="concrete">Concrete</button><button data-st="circuit">Electric</button><button data-st="water">Plumber</button>
-  </div></div>
-  <div class="mrow"><div class="ml">Paper tape</div><div class="seg" id="paperSeg" style="gap:10px">
+  <div class="mrow"><div class="ml">Paper</div><div class="seg" id="paperSeg" style="gap:10px">
     <span class="swatch" data-pa="white" style="background:#ffffff"></span>
     <span class="swatch" data-pa="manila" style="background:#ecdcba"></span>
     <span class="swatch" data-pa="sky" style="background:#e3edfb"></span>
@@ -97,7 +102,6 @@
     <button class="btn" id="mSave">Save .txt</button>
     <button class="btn alt" id="menuClose">Done</button>
   </div>
-  <div class="menufoot"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a> &bull; all data stays on your device</div>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -105,8 +109,5 @@
 <script src="js/app.js"></script>
 <script src="js/share.js"></script>
 <script src="js/edit-ops.js"></script>
-<script src="js/scale.js"></script>
-
-<script src="js/desktop.js"></script>
 </body>
 </html>

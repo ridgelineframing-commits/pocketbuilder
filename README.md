@@ -3,15 +3,17 @@
 Builder's tape calculator & notepad — feet-inch fractions, area/volume math, roof and stair solvers, board feet. Installable PWA; packages to Android via TWA.
 
 ## Features
-- Paper-tape calculator: every entry stays on the tape, tap any line to edit it and the whole chain recalculates (carried totals and subtotals included)
+- Ledger-notepad UI: full-window ruled tape with line numbers — every entry stays on the tape, tap any line to edit it and the whole chain recalculates
+- CalcTape-style flow: press = to rule off a total, then press an operator to carry it forward (↳) into the next block
+- Undo / Redo in the toolbar (Ctrl+Z / Ctrl+Y)
 - Feet / inch / fraction entry (1/8 · 1/16 · 1/32 precision), yards, full metric mode
 - Dimension-aware math: length × length = area, area × length = volume, with unit-safe errors
 - Roof solver (enter any two of pitch / rise / run / diag → all solved incl. hip/valley and angle)
 - Stair solver (total rise → risers, treads, stringer, landing heights)
 - Board feet, circle calc, percent, memory, unit conversion
 - Notes on any line, blocks with carried-forward totals, tape export (.txt), share/copy
-- Desktop: resizable window (tape grows, keypad fixed) and multiple scratchpad tabs
-- Themes: 10 case skins, 6 paper colors, 3 keypad layouts
+- Tape tabs (multiple scratchpads) on every device
+- Construction-Master-style raised keypad (Feet / Inch / fraction on the pad, hold ⌫ to clear); 6 paper colors, light/dark chrome
 - Fully offline (service worker), no data leaves the device
 
 ## Run it
