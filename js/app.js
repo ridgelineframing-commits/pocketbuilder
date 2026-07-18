@@ -1,4 +1,4 @@
-/* ===================== PocketBuilder UI ===================== */
+/* ===================== PocketBuilder UI — ledger notepad ===================== */
 var c = new PB.Calc();
 window._pendingNote="";
 (function(){ var oc=PB.Calc.prototype._commit;
@@ -8,10 +8,10 @@ window._pendingNote="";
       window._pendingNote="";
     } };
 })();
-var convMode = false, SYS = "imp", FRAC = 16, STYLE="graphite", PAPER="white", LAYOUT="full";
+var convMode = false, SYS = "imp", FRAC = 16, PAPER="white";
 var editTarget = null;
 function el(id){return document.getElementById(id);}
-var T = { tape:el("tape"), grand:el("grand"), gdim:el("gdim"), mem:el("mem") };
+var T = { tape:el("tape"), grand:el("grand"), gdim:el("gdim"), mem:el("mem"), block:el("blockTot") };
 
 function fv(v){
   if(!v) return "0";
@@ -27,38 +27,7 @@ function lin(n){ return {n:n,dim:PB.LINEAR}; }
 function fvL(n){ return n==null ? "—" : fv(lin(n)); }
 function fvIn(n){ return n==null ? "—" : (SYS==="met" ? PB.fmtNum(n*25.4,0)+" mm" : PB.fmtFtIn(n,FRAC)); }
 
-/* ===== CASE SKINS ===== */
-function texURL(svg){ try{ return 'url("data:image/svg+xml;base64,'+btoa(svg)+'")'; }catch(e){ return "none"; } }
-function woodSVG(){
-  var W=440,H=900,cols=["#6a3c18","#5a3214","#7a4a26","#4e2c12","#714224"],g="",x,i;
-  for(x=6;x<W;x+=11){ var col=cols[x%cols.length], w=(0.8+(x*7%10)/10*1.5).toFixed(2), op=(0.20+(x*3%10)/10*0.30).toFixed(2);
-    g+="<path d='M"+x+" -10 V"+(H+10)+"' stroke='"+col+"' stroke-width='"+w+"' opacity='"+op+"'/>"; }
-  var cx=W*0.42;
-  for(i=0;i<10;i++){ var rx=40+i*30, top=(H*0.42)-(160+i*60)*0.15;
-    g+="<path d='M"+(cx-rx)+" "+(H+10)+" C "+(cx-rx)+" "+top+", "+(cx+rx)+" "+top+", "+(cx+rx)+" "+(H+10)+"' fill='none' stroke='#4e2c12' stroke-width='1.6' opacity='0.55'/>"; }
-  return "<svg xmlns='http://www.w3.org/2000/svg' width='"+W+"' height='"+H+"'><defs>"+
-    "<filter id='wp' x='-10%' y='-3%' width='120%' height='106%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.018' numOctaves='3' seed='4' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='20' xChannelSelector='R' yChannelSelector='G'/></filter>"+
-    "<linearGradient id='wb' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#c79b74'/><stop offset='0.5' stop-color='#d3ad8b'/><stop offset='1' stop-color='#c2926a'/></linearGradient>"+
-    "</defs><rect width='"+W+"' height='"+H+"' fill='url(#wb)'/><g filter='url(#wp)'>"+g+"</g></svg>";
-}
-var SVG_CONC="<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='c' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='5' seed='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='0.6' intercept='0.38'/><feFuncG type='linear' slope='0.6' intercept='0.38'/><feFuncB type='linear' slope='0.6' intercept='0.39'/></feComponentTransfer></filter><rect width='200' height='200' filter='url(#c)'/></svg>";
-var SVG_CIRC="<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='200' height='200' fill='#07120f'/><g stroke='#1fd187' stroke-width='2' fill='none' opacity='0.85' stroke-linecap='round'><path d='M0 28 H64 L84 48 H200'/><path d='M0 92 H38 L58 72 H128 L148 92 H200'/><path d='M0 152 H96 L116 132 H200'/><path d='M28 0 V58 L48 78 V200'/><path d='M112 0 V42 L132 62 V128'/><path d='M172 0 V200'/></g><g fill='#1fd187'><circle cx='64' cy='28' r='4'/><circle cx='38' cy='92' r='4'/><circle cx='96' cy='152' r='4'/><circle cx='48' cy='78' r='3'/><circle cx='132' cy='62' r='3'/></g><g fill='#37e0d6'><rect x='148' y='88' width='18' height='8' rx='2'/><rect x='114' y='130' width='8' height='18' rx='2'/></g><g fill='#d24bd2'><rect x='128' y='40' width='6' height='22' rx='2'/><circle cx='172' cy='150' r='3'/></g><g fill='#1fd187' opacity='0.45'><rect x='10' y='172' width='3' height='3'/><rect x='182' y='20' width='3' height='3'/><rect x='88' y='186' width='3' height='3'/><rect x='150' y='168' width='3' height='3'/></g></svg>";
-var TEX_WOOD=texURL(woodSVG()), TEX_CONC=texURL(SVG_CONC), TEX_CIRC=texURL(SVG_CIRC);
-var CASES={
-  graphite:"repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#3a3f47,#20242a)",
-  steel:"repeating-linear-gradient(90deg,rgba(255,255,255,.13) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#d3d8de,#9aa1a9)",
-  navy:"repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.06) 1px 3px), linear-gradient(180deg,#2d4c75,#15263d)",
-  forest:"repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.06) 1px 3px), linear-gradient(180deg,#2f5a3a,#16301f)",
-  sand:"repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,rgba(0,0,0,.05) 1px 3px), linear-gradient(180deg,#c2a472,#8a6f44)",
-  crimson:"repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,rgba(0,0,0,.06) 1px 3px), linear-gradient(180deg,#9c2c23,#5f1813)",
-  wood:"linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.15)), "+TEX_WOOD+" center/cover",
-  concrete:"linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.16)), "+TEX_CONC+" top left/200px 200px repeat",
-  circuit:"radial-gradient(120% 90% at 50% 28%, rgba(31,209,135,.06), rgba(0,0,0,.40)), "+TEX_CIRC+" top left/132px 132px repeat, #07120f",
-  water:"linear-gradient(180deg, rgba(255,255,255,0) 49.3%, rgba(255,255,255,.6) 49.6%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 50.4%), radial-gradient(3px 3px at 30% 72%, rgba(255,255,255,.55), transparent 60%), radial-gradient(2px 2px at 62% 84%, rgba(255,255,255,.5), transparent 60%), linear-gradient(180deg,#eef6fc 0%,#e3eef8 49%,#5aa3d4 51%,#2f81bf 100%)"
-};
-function applyStyle(name){ STYLE=(CASES[name]?name:"graphite"); document.documentElement.style.setProperty("--shell", CASES[STYLE]); }
-function applyLayout(name){ LAYOUT=(name==="reduced"||name==="minimal")?name:"full"; var k=el("keys"); if(k){ k.classList.remove("reduced","minimal"); if(LAYOUT!=="full") k.classList.add(LAYOUT); } }
-
+/* ===== paper colors ===== */
 var PAPERS={
   white:{paper:"#ffffff",line:"#e1e1e1",margin:"#f0c4bd",txt:"#1d1f22",mut:"#a6a09a",note:"#14806a"},
   manila:{paper:"#ecdcba",line:"#d3c197",margin:"#cf9d7e",txt:"#2a2417",mut:"#897c5f",note:"#0f6b52"},
@@ -71,11 +40,11 @@ function applyPaper(name){ PAPER=(PAPERS[name]?name:"white"); var p=PAPERS[PAPER
   r.setProperty("--paper",p.paper);r.setProperty("--paperline",p.line);r.setProperty("--papermargin",p.margin);
   r.setProperty("--papertxt",p.txt);r.setProperty("--papermut",p.mut);r.setProperty("--papernote",p.note||p.mut); }
 
-var UNIT_SETS = { imp: [["yd","Yds"],["feet","Feet"],["inch","Inch"]], met: [["m","m"],["cm","cm"],["mm","mm"]] };
+/* ===== units: the three unit keys remap in metric ===== */
+var UNIT_SETS = { imp: [["feet","Feet"],["inch","Inch"],["frac","/"]], met: [["m","m"],["cm","cm"],["mm","mm"]] };
 function applySystem(){
   var set=UNIT_SETS[SYS];
   for(var i=0;i<3;i++){ var b=el("u"+i); if(b){ b.dataset.k=set[i][0]; b.textContent=set[i][1]; } }
-  el("fracKey").style.opacity = SYS==="met" ? .4 : 1;
   render();
 }
 
@@ -133,7 +102,7 @@ function fillField(kind,field){
   c.clearEntry(); render();
 }
 function answerVal(){ if(c.hasInput()) return c.current(); var a=c.result().acc; return (a && a.n!==0) ? a : null; }
-function popCellsClick(e){ var cc=e.target.closest(".cc.ed"); if(!cc) return; fillField(cc.dataset.kind, cc.dataset.f); }
+function popCellsClick(e){ var cc=e.target.closest(".cc.ed"); if(!cc) return; pushUndo(); fillField(cc.dataset.kind, cc.dataset.f); }
 el("roofcells").addEventListener("click",popCellsClick);
 el("staircells").addEventListener("click",popCellsClick);
 
@@ -160,42 +129,46 @@ function render(){
   var fr=c.result(), html="", idx=0;
   for(var k=0;k<c.steps.length;k++){
     var s=c.steps[k];
-    if(s.sep){ html+='<div class="tline sep" data-i="'+k+'"></div>'; continue; }
+    if(s.sep){ html+='<div class="tline sep" data-i="'+k+'"></div>'; idx=0; continue; }
     if(s.info){
-      if(s.sub){ html+='<div class="tline subtotal" data-i="'+k+'"><div class="op"></div><div class="val">'+esc((s.text||"").replace(/^= /,""))+'</div><div class="note"></div><span class="cpy" title="Copy value">\u29c9</span></div>'; continue; }
-      if(s.vtext){ html+='<div class="tline calcnote'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="op"></div><div class="val">'+esc(s.vtext)+'</div><div class="note">'+esc(s.text||"")+'</div><span class="cpy" title="Copy value">\u29c9</span></div>'; continue; }
-      html+='<div class="tline prose'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="op"></div><div class="txt">'+esc(s.text)+'</div></div>'; continue;
+      if(s.sub){ html+='<div class="tline subtotal" data-i="'+k+'"><div class="op">=</div><div class="val">'+esc((s.text||"").replace(/^= /,""))+'</div><div class="note"></div><span class="cpy" title="Copy value">⧉</span></div>'; continue; }
+      if(s.vtext){ html+='<div class="tline calcnote'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="op"></div><div class="val">'+esc(s.vtext)+'</div><div class="note">'+esc(s.text||"")+'</div><span class="cpy" title="Copy value">⧉</span></div>'; continue; }
+      html+='<div class="tline prose'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="txt">'+esc(s.text)+'</div></div>'; continue;
     }
     idx++;
     var opSym = s.op==="+"?"+":s.op==="-"?"−":s.op==="*"?"×":"÷";
     var opShown = s.carry ? "↳" : (idx===1?"":opSym);
     var sel = editTarget===k;
     var valHtml = sel ? esc(activeMain()) : esc(fv(s.val));
-    html+='<div class="tline'+(sel?' sel active caret':'')+(s.carry?' carry':'')+'" data-i="'+k+'">'+
+    html+='<div class="tline num'+(sel?' sel active caret':'')+(s.carry?' carry':'')+'" data-i="'+k+'">'+
       '<div class="op">'+opShown+'</div>'+
       '<div class="val">'+valHtml+'</div>'+
       '<div class="note">'+esc(s.note||"")+'</div>'+
-      '<span class="cpy" title="Copy value">\u29c9</span></div>';
+      '<span class="cpy" title="Copy value">⧉</span></div>';
   }
   if(editTarget==null){
     var am=activeMain();
     if(c.steps.length>0 || am!==""){
       var pend = (!c.justEval && c.pendingOp && c.steps.length>0) ? ({"+":"+","-":"−","*":"×","/":"÷"}[c.pendingOp]) : "";
-      html+='<div class="tline active caret">'+
+      html+='<div class="tline num active caret">'+
         '<div class="op">'+pend+'</div><div class="val">'+esc(am)+'</div><div class="note">'+esc(window._pendingNote||"")+'</div></div>';
     }
   }
-  if(html==="") html='<div class="emptytape">Tape is empty. Type a value, choose an operator, repeat.<br>Tap a line to edit it; tap <b>abc</b> to add a note.</div>';
+  if(html==="") html='<div class="emptytape">Type numbers — every entry stays on the ledger. Press <b>=</b> to rule off a total; press <b>+ − × ÷</b> after a total and the math carries forward (↳). Hold <b>⌫</b> to clear. Tap a line to edit it; tap <b>abc</b> for a note.</div>';
   var atBottom = (T.tape.scrollHeight - T.tape.scrollTop - T.tape.clientHeight) < 24;
   T.tape.innerHTML=html;
   if(atBottom) T.tape.scrollTop=T.tape.scrollHeight;
 
   var gt=grandTotal();
   if(fr.error||gt.error){ T.grand.textContent="Error"; T.gdim.textContent=fr.error||gt.error; }
-  else if(gt.mixed){ T.grand.textContent=fv(gt.last); T.gdim.textContent="mixed \u2014 last calc"; }
+  else if(gt.mixed){ T.grand.textContent=fv(gt.last); T.gdim.textContent="mixed — last calc"; }
   else { T.grand.textContent=fv(gt.acc); T.gdim.textContent=PB.dimName(gt.acc.dim)||"Number"; }
+  T.block.textContent = fr.error ? "…" : fv(fr.acc);
   T.mem.style.display = c.memory? "inline-block":"none";
   if(c.memory) T.mem.textContent="M "+fv(c.memory);
+  var ub=el("undoB"), rb=el("redoB");
+  if(ub) ub.disabled = _undo.length===0;
+  if(rb) rb.disabled = _redo.length===0;
   save();
 }
 
@@ -203,18 +176,26 @@ function addInfo(text){ c.steps.push({info:true,text:text}); }
 function toast(m){var t=el("toast");t.textContent=m;t.classList.add("on");clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove("on");},1600);}
 
 function blockValueCount(){ var n=0; for(var i=c.steps.length-1;i>=0;i--){ var s=c.steps[i]; if(s.sep) break; if(!s.info && !s.card && s.val) n++; } return n; }
+/* grand total: sum the blocks — but a block that STARTS with a carry continues the
+   previous block's math, so the previous block's total is superseded, not added. */
 function grandTotal(){
-  var res=null, start=0, err=null;
-  for(var i=0;i<=c.steps.length;i++){
+  var blocks=[], start=0, err=null, i, q;
+  for(i=0;i<=c.steps.length;i++){
     if(i===c.steps.length || c.steps[i].sep){
       var seg=c.steps.slice(start,i); start=i+1;
-      var has=false; for(var q=0;q<seg.length;q++){ if(seg[q].val && !seg[q].info){ has=true; break; } }
-      if(!has) continue;
+      var firstVal=null;
+      for(q=0;q<seg.length;q++){ if(seg[q].val && !seg[q].info){ firstVal=seg[q]; break; } }
+      if(!firstVal) continue;
       var f=PB.fold(seg);
       if(f.error){ err=f.error; continue; }
-      if(!res) res={n:f.acc.n,dim:f.acc.dim,u:f.acc.u};
-      else { var r=PB.combine(res,"+",f.acc); if(r.error){ return {mixed:true,last:f.acc,error:err}; } res={n:r.n,dim:r.dim,u:r.u}; }
+      blocks.push({acc:f.acc, startsCarry:!!firstVal.carry});
     }
+  }
+  var res=null;
+  for(i=0;i<blocks.length;i++){
+    if(i+1<blocks.length && blocks[i+1].startsCarry) continue;   /* superseded by the carried chain */
+    if(!res) res={n:blocks[i].acc.n,dim:blocks[i].acc.dim,u:blocks[i].acc.u};
+    else { var r=PB.combine(res,"+",blocks[i].acc); if(r.error){ return {mixed:true,last:blocks[i].acc,error:err}; } res={n:r.n,dim:r.dim,u:r.u}; }
   }
   return {acc:res||{n:0,dim:0}, error:err};
 }
@@ -225,6 +206,42 @@ function doEquals(){
   if(c.steps.length>0) c.steps.push({sep:true});
   c.pendingOp="+"; c.justEval=false; c.clearEntry(); editTarget=null;
 }
+/* operator right after a ruled-off total → pull the total down and keep going (↳) */
+function maybeCarry(op){
+  if(c.hasInput() || editTarget!=null) return false;
+  var n=c.steps.length;
+  if(n===0 || !c.steps[n-1].sep) return false;
+  var st=0, j;
+  for(j=n-2;j>=0;j--){ if(c.steps[j].sep){ st=j+1; break; } }
+  var seg=c.steps.slice(st,n-1), has=false;
+  for(j=0;j<seg.length;j++){ if(seg[j].val && !seg[j].info){ has=true; break; } }
+  if(!has) return false;
+  var f=PB.fold(seg);
+  if(f.error) return false;
+  c.steps.push({op:"+", val:{n:f.acc.n,dim:f.acc.dim,u:f.acc.u}, note:"carried", carry:true});
+  c.pendingOp=op; c.justEval=false;
+  return true;
+}
+
+/* ---------- undo / redo ---------- */
+var _undo=[], _redo=[];
+function snapState(){
+  return JSON.stringify({steps:c.steps, mem:c.memory, e:c.e, pendingOp:c.pendingOp, justEval:c.justEval,
+    roofD:roofD, stairD:stairD, editTarget:editTarget, pendingNote:window._pendingNote});
+}
+function pushUndo(){ _undo.push(snapState()); if(_undo.length>100) _undo.shift(); _redo.length=0; }
+function popNoop(){ if(_undo.length && _undo[_undo.length-1]===snapState()) _undo.pop(); }
+function restoreState(s){
+  var d=JSON.parse(s);
+  c.steps=d.steps||[]; c.memory=d.mem||null; c.e=d.e; c.pendingOp=d.pendingOp||"+"; c.justEval=!!d.justEval;
+  roofD=d.roofD||makeRoofD(); stairD=d.stairD||makeStairD();
+  editTarget=(d.editTarget==null?null:d.editTarget); window._pendingNote=d.pendingNote||"";
+  render();
+}
+function undo(){ if(!_undo.length) return; _redo.push(snapState()); restoreState(_undo.pop()); }
+function redo(){ if(!_redo.length) return; _undo.push(snapState()); restoreState(_redo.pop()); }
+function clearHistory(){ _undo.length=0; _redo.length=0; }
+window.pushUndo=pushUndo;
 
 /* ---------- inline edit helpers ---------- */
 function commitEdit(){
@@ -257,13 +274,14 @@ function applyEntryKey(k){
   else c.inputUnit({feet:"ft",inch:"in",yd:"yd",m:"m",cm:"cm",mm:"mm"}[k]);
 }
 function press(k){
+  if(k!=="conv") pushUndo();
   if(convMode && ["yd","feet","inch","m","cm","mm"].indexOf(k)>=0){
     var u={feet:"ft",inch:"in",yd:"yd",m:"m",cm:"cm",mm:"mm"}[k];
     var rd=c.convertDisplay(u); convMode=false; c.steps.push({info:true,vtext:rd,text:"converted"}); toast(rd); render(); return;
   }
   if(editTarget!=null){
     if(k==="bk"){
-      if(c.hasInput() && !isPristineLoaded()){ c.backspace(); render(); return; }
+      if(c.hasInput() && !isPristineLoaded()){ c.backspace(); render(); popNoop(); return; }
       deleteLineUp(); render(); return;
     }
     if(isPristineLoaded() && c.e.loaded.dim===PB.LINEAR && (k==="feet"||k==="inch"||k==="yd")){
@@ -284,14 +302,14 @@ function press(k){
     case "cm": c.inputUnit("cm"); break;
     case "mm": c.inputUnit("mm"); break;
     case "frac": c.inputFrac(); break;
-    case "add": c.operator("+"); break;
-    case "sub": c.operator("-"); break;
-    case "mul": c.operator("*"); break;
-    case "div": c.operator("/"); break;
+    case "add": if(maybeCarry("+")) break; c.operator("+"); break;
+    case "sub": if(maybeCarry("-")) break; c.operator("-"); break;
+    case "mul": if(maybeCarry("*")) break; c.operator("*"); break;
+    case "div": if(maybeCarry("/")) break; c.operator("/"); break;
     case "eq": doEquals(); break;
     case "space": doEquals(); break;
     case "pct": c.percent(); break;
-    case "sqrt": { var sq=c.sqrt(); toast("\u221a = "+fv(sq)); break; }
+    case "sqrt": { var sq=c.sqrt(); toast("√ = "+fv(sq)); break; }
     case "pm": c.plusminus(); break;
     case "bk": if(window._pendingNote){ window._pendingNote=window._pendingNote.slice(0,-1); break; } c.backspace(); break;
     case "ac": c.allClear(); convMode=false; window._pendingNote=""; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null;
@@ -306,22 +324,63 @@ function press(k){
     case "diag":  { var v=answerVal(); if(v){ roofSetField(roofD,"diag",asInches(v)); c.clearEntry(); } openRoofPop(); break; }
     case "hipv":  openRoofPop(); break;
     case "stair": { var v=answerVal(); if(v){ stairSetField(stairD,"rise",asInches(v)); c.clearEntry(); } openStairPop(); break; }
-    case "circ": { var cc=c.circle(); c.steps.push({info:true,vtext:fv(cc.diam),text:"circle \u2300"}); c.steps.push({info:true,vtext:fv(cc.circ),text:"circumference"}); c.steps.push({info:true,vtext:fv(cc.area),text:"area"}); c.loadValue(cc.area); break; }
+    case "circ": { var cc=c.circle(); c.steps.push({info:true,vtext:fv(cc.diam),text:"circle ⌀"}); c.steps.push({info:true,vtext:fv(cc.circ),text:"circumference"}); c.steps.push({info:true,vtext:fv(cc.area),text:"area"}); c.loadValue(cc.area); break; }
     case "bdft": { var b=c.boardFeet(); if(b.error){toast(b.error);} else { c.steps.push({info:true,vtext:PB.fmtNum(b.n),text:"board feet"}); c.loadValue(b); } break; }
   }
   render();
+  if(k!=="conv") popNoop();
 }
+
+/* keypad: pointerdown fires keys; backspace gets tap-vs-hold */
 el("keys").addEventListener("pointerdown",function(e){
   var b=e.target.closest(".key"); if(!b) return; e.preventDefault();
   if(el("noteBar").classList.contains("on")) closeNote();
   b.classList.add("hit"); setTimeout(function(){b.classList.remove("hit");},90);
+  if(b.dataset.k==="bk"){
+    window._bkHeld=false;
+    clearTimeout(window._bkT);
+    window._bkT=setTimeout(function(){ window._bkHeld=true; press("ac"); toast("Cleared"); },550);
+    return;
+  }
   press(b.dataset.k);
 }, {passive:false});
+el("keys").addEventListener("pointerup",function(e){
+  var b=e.target.closest(".key"); if(!b || b.dataset.k!=="bk") return;
+  clearTimeout(window._bkT);
+  if(!window._bkHeld) press("bk");
+  window._bkHeld=false;
+});
+el("keys").addEventListener("pointerleave",function(){ clearTimeout(window._bkT); window._bkHeld=false; },true);
+
+/* statusbar minis (± % M+ M− MR) */
+document.querySelectorAll("#statusbar .mini").forEach(function(b){
+  b.addEventListener("click",function(){ press(b.dataset.k); });
+});
+
+/* toolbar */
+document.querySelectorAll('#toolbar [data-fn]').forEach(function(b){
+  b.addEventListener("click",function(){
+    var fn=b.dataset.fn;
+    if(fn==="roof") press("hipv");
+    else if(fn==="stair") press("stair");
+    else if(fn==="circ") press("circ");
+    else if(fn==="conv") press("conv");
+    else if(fn==="share"){ if(window.shareTape) shareTape(); }
+    else if(fn==="save") downloadTape();
+  });
+});
+el("undoB").addEventListener("click",undo);
+el("redoB").addEventListener("click",redo);
 
 /* physical keyboard */
 window.addEventListener("keydown",function(e){
   if(document.activeElement===el("noteInput")) return;
   if(el("menu").classList.contains("on")) return;
+  if((e.ctrlKey||e.metaKey) && !e.altKey){
+    var kk=e.key.toLowerCase();
+    if(kk==="z" && !e.shiftKey){ undo(); e.preventDefault(); return; }
+    if(kk==="y" || (kk==="z" && e.shiftKey)){ redo(); e.preventDefault(); return; }
+  }
   var map={"+":"add","-":"sub","*":"mul","/":"div","=":"eq","Enter":"eq",".":"dot","Backspace":"bk","%":"pct","Escape":"ac"};
   if(/^[0-9]$/.test(e.key)){ press(e.key); e.preventDefault(); }
   else if(map[e.key]){ press(map[e.key]); e.preventDefault(); }
@@ -351,21 +410,20 @@ T.tape.addEventListener("click",function(e){
     return;
   }
   var row=e.target.closest(".tline");
-  if(!row || (row.classList.contains("active") && editTarget==null)){ if(editTarget!=null){ commitEdit(); render(); } return; }
+  if(!row || (row.classList.contains("active") && editTarget==null)){ if(editTarget!=null){ pushUndo(); commitEdit(); render(); popNoop(); } return; }
   var i=parseInt(row.dataset.i,10); if(isNaN(i)) return;
-  if(editTarget!=null && editTarget!==i) commitEdit();
+  if(editTarget!=null && editTarget!==i){ pushUndo(); commitEdit(); popNoop(); }
   editTarget=i;
   var s=c.steps[i];
   if(s && s.val) c.loadValue(s.val); else c.clearEntry();
   render();
 });
 
-/* ---------- notes (abc keyboard) ---------- */
+/* ---------- notes (abc) ---------- */
 function openNote(){
   var st = (editTarget!=null) ? c.steps[editTarget] : null;
   if(st && (st.sep || st.sub)){ toast("Pick a value or text line"); return false; }
   if(!st){
-    /* nothing selected: start a fresh text line at the end of the tape, like typing in a notepad */
     c.steps.push({info:true,text:""});
     editTarget=c.steps.length-1; st=c.steps[editTarget]; render();
   }
@@ -378,38 +436,38 @@ function openNote(){
 function closeNote(){ el("noteBar").classList.remove("on"); var ni=el("noteInput"); if(ni) ni.blur();
   if(editTarget!=null && c.steps[editTarget]){ var st=c.steps[editTarget];
     if(st.info && !st.sub && !st.vtext && !(st.text||"").trim()){ c.steps.splice(editTarget,1); editTarget=null; render(); } } }
-el("kbBtn").addEventListener("click",openNote);
+el("kbBtn").addEventListener("click",function(){ pushUndo(); openNote(); });
 el("noteDone").addEventListener("click",closeNote);
 el("noteInput").addEventListener("input",function(){
   if(editTarget!=null && c.steps[editTarget]){ var st=c.steps[editTarget];
-    if(st.info) st.text=el("noteInput").value; else st.note=el("noteInput").value; render(); }
-});
+    if(st.info) st.text=el("noteInput").value; else st.note=el("noteInput").value; render(); } });
 el("noteInput").addEventListener("keydown",function(e){ e.stopPropagation(); if(e.key==="Enter"){ closeNote(); } });
 
-/* ---------- menu ---------- */
+/* ---------- settings ---------- */
 function segOn(segId, attr, val){ var seg=el(segId); for(var i=0;i<seg.children.length;i++){ var b=seg.children[i]; b.classList.toggle("on", b.getAttribute(attr)===String(val)); } }
-function openMenu(){ segOn("unitSeg","data-u",SYS); segOn("fracSeg","data-fr",FRAC); segOn("layoutSeg","data-ly",LAYOUT); segOn("styleSeg","data-st",STYLE); segOn("paperSeg","data-pa",PAPER); el("menu").classList.add("on"); }
+function openMenu(){ segOn("unitSeg","data-u",SYS); segOn("fracSeg","data-fr",FRAC); segOn("paperSeg","data-pa",PAPER); el("menu").classList.add("on"); }
 function closeMenu(){ el("menu").classList.remove("on"); }
 el("nameBtn").addEventListener("click",openMenu);
+el("menuBtn").addEventListener("click",openMenu);
 el("menuClose").addEventListener("click",closeMenu);
 el("menu").addEventListener("click",function(e){ if(e.target.id==="menu") closeMenu(); });
 el("unitSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; SYS=b.dataset.u; saveSettings(); applySystem(); segOn("unitSeg","data-u",SYS); });
 el("fracSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; FRAC=parseInt(b.dataset.fr,10); saveSettings(); segOn("fracSeg","data-fr",FRAC); render(); });
-el("layoutSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; applyLayout(b.dataset.ly); saveSettings(); segOn("layoutSeg","data-ly",LAYOUT); });
-el("styleSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; applyStyle(b.dataset.st); saveSettings(); segOn("styleSeg","data-st",STYLE); });
 el("paperSeg").addEventListener("click",function(e){ var b=e.target.closest(".swatch"); if(!b)return; applyPaper(b.dataset.pa); saveSettings(); segOn("paperSeg","data-pa",PAPER); });
-el("mNew").addEventListener("click",function(){ if(c.steps.length && !confirm("Start a new tape?")) return; c.allClear(); convMode=false; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null; closeMenu(); render(); toast("New tape"); });
+el("mNew").addEventListener("click",function(){ if(c.steps.length && !confirm("Start a new tape?")) return; pushUndo(); c.allClear(); convMode=false; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null; closeMenu(); render(); toast("New tape"); });
 el("mSave").addEventListener("click",function(){ downloadTape(); });
 
 /* roof/stair -> tape — one item per line */
 function roofToTape(){ var d=roofD; if(d.rise==null){ toast("Enter two of pitch/run/rise/diag"); return; }
-  c.steps.push({info:true,text:"ROOF \u2014 "+PB.fmtNum(d.pitch,2)+"/12 pitch, "+PB.fmtNum(d.angle,1)+"\u00b0"});
+  pushUndo();
+  c.steps.push({info:true,text:"ROOF — "+PB.fmtNum(d.pitch,2)+"/12 pitch, "+PB.fmtNum(d.angle,1)+"°"});
   c.steps.push({info:true,vtext:fvL(d.rise),text:"rise"});
   c.steps.push({info:true,vtext:fvL(d.run),text:"run"});
   c.steps.push({info:true,vtext:fvL(d.diag),text:"common rafter"});
   c.steps.push({info:true,vtext:fvL(d.hip),text:"hip / valley"});
   el("roofpop").classList.remove("on"); render(); toast("Sent to tape"); }
 function stairToTape(){ var d=stairD; if(d.rise==null){ toast("Enter total rise"); return; }
+  pushUndo();
   c.steps.push({info:true,text:"STAIRS"});
   c.steps.push({info:true,vtext:fvL(d.rise),text:"total rise"});
   c.steps.push({info:true,vtext:fvL(d.riser),text:d.n+" risers"});
@@ -429,7 +487,7 @@ el("stairPopClose").onclick=function(){ el("stairpop").classList.remove("on"); }
 function tapeText(){
   var fr=c.result(), out=[], idx=0, W=15;
   function pad(v){ v=String(v==null?"":v); while(v.length<W) v=" "+v; return v; }
-  out.push("POCKETBUILDER \u2014 TAPE"); out.push(new Date().toLocaleString()); out.push("");
+  out.push("POCKETBUILDER — TAPE"); out.push(new Date().toLocaleString()); out.push("");
   for(var k=0;k<c.steps.length;k++){ var s=c.steps[k];
     if(s.sep){ out.push(""); idx=0; continue; }
     if(s.info){
@@ -441,7 +499,8 @@ function tapeText(){
     var op=s.carry?">":s.op==="+"?"+":s.op==="-"?"-":s.op==="*"?"x":"/";
     out.push((idx===1?" ":op)+" "+pad(fv(s.val))+(s.note?"   "+s.note:""));
   }
-  out.push(""); out.push("TOTAL: "+(fr.error?("Error \u2014 "+fr.error):fv(fr.acc))+"  "+(PB.dimName(fr.acc.dim)||""));
+  var gt=grandTotal();
+  out.push(""); out.push("TOTAL: "+(gt.error?("Error — "+gt.error):fv(gt.mixed?gt.last:gt.acc))+"  "+(PB.dimName((gt.mixed?gt.last:gt.acc).dim)||""));
   return out.join("\n");
 }
 function downloadTape(){
@@ -453,16 +512,85 @@ function downloadTape(){
 }
 
 /* ---------- persistence ----------
-   NB: the localStorage keys ("buildtally", "bt_set", plus "bt_tabs"/"bt_kpos"
-   in desktop.js) predate the PocketBuilder name and are kept as-is on purpose —
-   renaming them would orphan every existing user's saved tapes and settings. */
+   NB: the localStorage keys ("buildtally", "bt_set", "bt_tabs") predate the
+   PocketBuilder name and are kept as-is on purpose — renaming them would orphan
+   every existing user's saved tapes and settings. */
 function save(){ try{ localStorage.setItem("buildtally", JSON.stringify({steps:c.steps,mem:c.memory,roofD:roofD,stairD:stairD})); }catch(e){} }
-function saveSettings(){ try{ localStorage.setItem("bt_set", JSON.stringify({SYS:SYS,FRAC:FRAC,STYLE:STYLE,PAPER:PAPER,LAYOUT:LAYOUT})); }catch(e){} }
+function saveSettings(){ try{ localStorage.setItem("bt_set", JSON.stringify({SYS:SYS,FRAC:FRAC,PAPER:PAPER})); }catch(e){} }
 function load(){
-  try{ var st=JSON.parse(localStorage.getItem("bt_set")||"null"); if(st){ SYS=st.SYS||"imp"; FRAC=st.FRAC||16; STYLE=st.STYLE||"graphite"; PAPER=st.PAPER||"white"; LAYOUT=st.LAYOUT||"full"; } }catch(e){}
+  try{ var st=JSON.parse(localStorage.getItem("bt_set")||"null"); if(st){ SYS=st.SYS||"imp"; FRAC=st.FRAC||16; PAPER=st.PAPER||"white"; } }catch(e){}
   try{ var d=JSON.parse(localStorage.getItem("buildtally")||"null"); if(d){ c.steps=d.steps||[]; c.memory=d.mem||null; c.justEval=true; if(d.roofD)roofD=d.roofD; if(d.stairD)stairD=d.stairD; } }catch(e){}
 }
-load(); applyStyle(STYLE); applyPaper(PAPER); applyLayout(LAYOUT); applySystem();
+load(); applyPaper(PAPER);
+
+/* ---------- tabs: multiple tapes on every device ---------- */
+(function(){
+  var tabs=[], act=0, bar=el("tabbar");
+  function freshTab(n){ return {name:"Tape "+n, steps:[], roofD:makeRoofD(), stairD:makeStairD()}; }
+  function commitActive(){ if(tabs[act]){ tabs[act].steps=c.steps; tabs[act].roofD=roofD; tabs[act].stairD=stairD; } }
+  function persist(){ try{ localStorage.setItem("bt_tabs", JSON.stringify({tabs:tabs, act:act})); }catch(e){} }
+  function loadTab(i){
+    act=i; var t=tabs[i];
+    c.steps=t.steps||[]; c.justEval=false; c.pendingOp="+"; c.clearEntry();
+    roofD=t.roofD||makeRoofD(); stairD=t.stairD||makeStairD();
+    editTarget=null; convMode=false; clearHistory();
+    el("roofpop").classList.remove("on"); el("stairpop").classList.remove("on");
+    try{ closeNote(); }catch(e){}
+  }
+  function switchTab(i){
+    if(i===act) return;
+    try{ if(editTarget!=null) commitEdit(); }catch(e){}
+    commitActive(); loadTab(i); persist(); renderTabs(); render();
+  }
+  function addTab(){
+    try{ if(editTarget!=null) commitEdit(); }catch(e){}
+    commitActive();
+    var mx=0; tabs.forEach(function(t){ var m=/^Tape (\d+)$/.exec(t.name); if(m) mx=Math.max(mx,parseInt(m[1],10)); });
+    tabs.push(freshTab(mx+1));
+    loadTab(tabs.length-1); persist(); renderTabs(); render(); toast("New tape tab");
+  }
+  function closeTab(i){
+    var t=tabs[i], has=(t.steps||[]).some(function(s){ return s.val || s.info; });
+    if(has && !confirm('Close "'+t.name+'"? Its tape will be lost.')) return;
+    tabs.splice(i,1);
+    if(tabs.length===0){ tabs.push(freshTab(1)); }
+    loadTab(Math.min(i, tabs.length-1));
+    persist(); renderTabs(); render();
+  }
+  function renameTab(i){
+    var n=prompt("Tab name:", tabs[i].name);
+    if(n!=null && n.trim()!==""){ tabs[i].name=n.trim().slice(0,24); persist(); renderTabs(); }
+  }
+  function renderTabs(){
+    bar.innerHTML="";
+    tabs.forEach(function(t,i){
+      var d=document.createElement("div"); d.className="tab"+(i===act?" on":"");
+      var tx=document.createElement("span"); tx.className="tx"; tx.textContent=t.name; d.appendChild(tx);
+      if(tabs.length>1){
+        var x=document.createElement("span"); x.className="x"; x.textContent="✕";
+        x.addEventListener("click",function(ev){ ev.stopPropagation(); closeTab(i); });
+        d.appendChild(x);
+      }
+      d.addEventListener("click",function(){ switchTab(i); });
+      d.addEventListener("dblclick",function(){ renameTab(i); });
+      bar.appendChild(d);
+    });
+    var add=document.createElement("div"); add.className="addtab"; add.textContent="+"; add.title="New tape tab";
+    add.addEventListener("click",addTab);
+    bar.appendChild(add);
+  }
+  /* restore tabs; migrate the single saved tape into Tab 1 on first run */
+  try{
+    var d=JSON.parse(localStorage.getItem("bt_tabs")||"null");
+    if(d && d.tabs && d.tabs.length){ tabs=d.tabs; act=Math.min(d.act||0, tabs.length-1); loadTab(act); }
+  }catch(e){}
+  if(tabs.length===0){ tabs=[{name:"Tape 1", steps:c.steps, roofD:roofD, stairD:stairD}]; act=0; }
+  renderTabs();
+  var origSave=save;
+  window.save=function(){ origSave(); commitActive(); persist(); };
+})();
+
+applySystem();
 
 /* ---------- PWA: register the service worker ---------- */
 (function(){

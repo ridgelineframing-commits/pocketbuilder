@@ -31,6 +31,7 @@
     if(typeof editTarget!=="undefined" && editTarget!=null && (k==="add"||k==="sub"||k==="mul"||k==="div")
        && (typeof isPristineLoaded!=="function" || isPristineLoaded())
        && c.steps[editTarget] && c.steps[editTarget].val && !c.steps[editTarget].info){
+      if(window.pushUndo) pushUndo();
       if(changeOp(editTarget, OPMAP[k])){ try{toast("Changed to "+(k==="mul"?"×":k==="div"?"÷":k==="sub"?"−":"+"));}catch(e){} render(); return; }
     }
     return orig(k);
