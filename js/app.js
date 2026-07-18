@@ -595,6 +595,16 @@ applySystem();
 /* ---------- PWA: register the service worker ---------- */
 (function(){
   if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
-    try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){}
+    try{
+      var hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+      /* when a new SW takes over an already-controlled page, reload once so
+         HTML/CSS/JS are never a mix of two deploys */
+      navigator.serviceWorker.addEventListener("controllerchange", function(){
+        if(!hadController || window._pbReloaded) return;
+        window._pbReloaded = true;
+        location.reload();
+      });
+    }catch(e){}
   }
 })();
