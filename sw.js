@@ -2,7 +2,7 @@
    App-shell files (HTML/CSS/JS/manifest) are NETWORK-FIRST so a deploy never
    mixes fresh HTML with stale assets; the cache is only the offline fallback.
    Images stay cache-first (they change rarely and rename when they matter). */
-const CACHE='pocketbuilder-v17';
+const CACHE='pocketbuilder-v18';
 const ASSETS=['./','./index.html','./privacy.html','./styles.css','./js/engine.js','./js/app.js','./js/share.js','./js/edit-ops.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
