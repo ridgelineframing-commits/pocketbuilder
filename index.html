@@ -33,7 +33,6 @@
     </div>
     <span class="sp"></span>
     <div class="grp">
-      <button class="tb" id="kbBtn" title="Add a note to a line">abc</button>
       <button class="tb" data-fn="share">Share</button>
       <button class="tb" data-fn="save">Save</button>
       <button class="tb icon" id="menuBtn" title="Settings">&#9881;</button>
@@ -59,12 +58,20 @@
     </div>
 
     <aside id="keys">
+      <div class="kstrip">
+        <button class="ks unit" id="u0" data-k="feet">Feet</button>
+        <button class="ks unit" id="u1" data-k="inch">Inch</button>
+        <button class="ks unit" id="u2" data-k="frac">/ frac</button>
+        <span class="sp"></span>
+        <button class="ks" id="kbBtn" title="Note on this line">ABC</button>
+        <button class="ks" id="ksCopy" title="Copy tape">&#10697;</button>
+      </div>
       <div class="np">
-        <button class="key unit" id="u0" data-k="feet">Feet</button><button class="key unit" id="u1" data-k="inch">Inch</button><button class="key unit" id="u2" data-k="frac">/</button><button class="key op" data-k="bk" id="bkKey" title="Backspace &mdash; hold to clear all">&#9003;</button>
-        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="div">&divide;</button>
-        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="mul">&times;</button>
-        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="sub">&minus;</button>
-        <button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key eq" data-k="eq">=</button><button class="key op" data-k="add">+</button>
+        <button class="key ac" data-k="ac">AC</button><button class="key op small" data-k="bk" id="bkKey" title="Backspace &mdash; hold to clear all">&#9003;</button><button class="key op" data-k="div">&divide;</button><button class="key op" data-k="mul">&times;</button>
+        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="sub">&minus;</button>
+        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="add">+</button>
+        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key eq" data-k="eq">=</button>
+        <button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key op small" data-k="pct">%</button>
       </div>
     </aside>
   </div>
@@ -73,7 +80,6 @@
     <span class="st-lab">Block</span><span class="st-val" id="blockTot">0</span>
     <div class="minis">
       <button class="mini" data-k="pm">&plusmn;</button>
-      <button class="mini" data-k="pct">%</button>
       <button class="mini" data-k="mplus">M+</button>
       <button class="mini" data-k="mminus">M&minus;</button>
       <button class="mini" data-k="rcl">MR</button>
@@ -87,6 +93,7 @@
 
 <div class="scrim" id="menu"><div class="sheet">
   <h4>PocketBuilder</h4>
+  <div class="mrow"><div class="ml">Theme</div><div class="seg" id="themeSeg"><button data-th="auto">Auto</button><button data-th="light">Light</button><button data-th="dark">Dark</button><button data-th="wood">Night Wood</button></div></div>
   <div class="mrow"><div class="ml">Units</div><div class="seg" id="unitSeg"><button data-u="imp">Imperial</button><button data-u="met">Metric</button></div></div>
   <div class="mrow"><div class="ml">Fraction precision</div><div class="seg" id="fracSeg"><button data-fr="8">1/8</button><button data-fr="16">1/16</button><button data-fr="32">1/32</button></div></div>
   <div class="mrow"><div class="ml">Paper</div><div class="seg" id="paperSeg" style="gap:10px">
@@ -96,6 +103,7 @@
     <span class="swatch" data-pa="charcoal" style="background:#2b2e33"></span>
     <span class="swatch" data-pa="navy" style="background:#19233b"></span>
     <span class="swatch" data-pa="forest" style="background:#1b2a1d"></span>
+    <span class="swatch" data-pa="coffee" style="background:#241c11"></span>
   </div></div>
   <div class="menubtns">
     <button class="btn alt" id="mNew">New tape</button>
