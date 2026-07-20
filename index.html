@@ -27,6 +27,8 @@
     </div>
     <span class="sp"></span>
     <div class="grp">
+      <button class="tb" id="kbBtn" title="Note on this line">abc</button>
+      <button class="tb" id="ksCopy" title="Copy tape">&#10697;</button>
       <button class="tb" data-fn="share">Share</button>
       <button class="tb" data-fn="save">Save</button>
       <button class="tb icon" id="menuBtn" title="Settings">&#9881;</button>
@@ -52,22 +54,13 @@
     </div>
 
     <aside id="keys">
-      <div class="kstrip">
-        <button class="ks unit" id="u0" data-k="feet">Feet</button>
-        <button class="ks unit" id="u1" data-k="inch">Inch</button>
-        <button class="ks unit" id="u2" data-k="frac">/ frac</button>
-        <span class="sp"></span>
-        <button class="ks" id="kbBtn" title="Note on this line">ABC</button>
-        <button class="ks" id="ksCopy" title="Copy tape">&#10697;</button>
-      </div>
       <div class="np">
-        <button class="key fn" data-k="hipv">Roof</button><button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button>
-        <button class="key ac" data-k="ac">AC</button><button class="key op small" data-k="bk" id="bkKey" title="Backspace &mdash; hold to clear all">&#9003;</button><button class="key op" data-k="div">&divide;</button><button class="key op" data-k="mul">&times;</button>
-        <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="sub">&minus;</button>
-        <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="add">+</button>
-        <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key eq" data-k="eq">=</button>
-        <button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key op small" data-k="pct">%</button>
-        <button class="key fn small" data-k="rcl" id="mrKey">Rcl</button><button class="key fn small" data-k="mplus">M+</button><button class="key fn small" data-k="mminus">M&minus;</button><button class="key fn small" data-k="pm">&plusmn;</button>
+        <button class="key fn" data-k="hipv">Roof</button><button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button><button class="key ac" data-k="ac">AC</button>
+        <button class="key unit" id="u0" data-k="yd">Yds</button><button class="key unit" id="u1" data-k="feet">Feet</button><button class="key unit" id="u2" data-k="inch">Inch</button><button class="key unit" id="u3" data-k="frac">/</button><button class="key op small" data-k="bk" id="bkKey" title="Backspace &mdash; hold to clear all">&#9003;</button>
+        <button class="key fn small" data-k="rcl" id="mrKey">Rcl</button><button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="div">&divide;</button>
+        <button class="key fn small" data-k="mplus">M+</button><button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="mul">&times;</button>
+        <button class="key fn small" data-k="mminus">M&minus;</button><button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key op" data-k="sub" id="subKey" title="Minus &mdash; hold for &plusmn;">&minus;</button>
+        <button class="key fn small" data-k="pct">%</button><button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key eq" data-k="eq">=</button><button class="key op" data-k="add">+</button>
       </div>
     </aside>
   </div>
