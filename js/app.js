@@ -11,7 +11,7 @@ window._pendingNote="";
 var convMode = false, SYS = "imp", FRAC = 16, PAPER="white", THEME="auto";
 var editTarget = null;
 function el(id){return document.getElementById(id);}
-var T = { tape:el("tape"), grand:el("grand"), gdim:el("gdim"), mem:el("mem"), block:el("blockTot") };
+var T = { tape:el("tape") };
 
 function fv(v){
   if(!v) return "0";
@@ -128,6 +128,22 @@ function fillField(kind,field){
   c.clearEntry(); render();
 }
 function answerVal(){ if(c.hasInput()) return c.current(); var a=c.result().acc; return (a && a.n!==0) ? a : null; }
+/* current entry if typing, else the last non-empty block's total (so M+ right
+   after = grabs the total you just ruled off, not the empty new block) */
+function lastTotal(){
+  if(c.hasInput()) return c.current();
+  var i=c.steps.length, en=i, found=null;
+  while(i>=0){
+    var st=0, j;
+    for(j=en-1;j>=0;j--){ if(c.steps[j].sep){ st=j+1; break; } }
+    var seg=c.steps.slice(st,en), has=false;
+    for(j=0;j<seg.length;j++){ if(seg[j].val && !seg[j].info){ has=true; break; } }
+    if(has){ var f=PB.fold(seg); if(!f.error) found=f.acc; break; }
+    if(st===0) break;
+    en=st-1;
+  }
+  return found||{n:0,dim:PB.SCALAR};
+}
 function popCellsClick(e){ var cc=e.target.closest(".cc.ed"); if(!cc) return; pushUndo(); fillField(cc.dataset.kind, cc.dataset.f); }
 el("roofcells").addEventListener("click",popCellsClick);
 el("staircells").addEventListener("click",popCellsClick);
@@ -166,7 +182,7 @@ function render(){
     var opShown = s.carry ? "↳" : (idx===1?"":opSym);
     var sel = editTarget===k;
     var valHtml = sel ? esc(activeMain()) : esc(fv(s.val));
-    html+='<div class="tline num'+(sel?' sel active caret':'')+(s.carry?' carry':'')+'" data-i="'+k+'">'+
+    html+='<div class="tline num'+(sel?' sel active caret':'')+(s.carry?' carry':'')+'" data-n="'+idx+'" data-i="'+k+'">'+
       '<div class="op">'+opShown+'</div>'+
       '<div class="val">'+valHtml+'</div>'+
       '<div class="note">'+esc(s.note||"")+'</div>'+
@@ -175,8 +191,8 @@ function render(){
   if(editTarget==null){
     var am=activeMain();
     if(c.steps.length>0 || am!==""){
-      var pend = (!c.justEval && c.pendingOp && c.steps.length>0) ? ({"+":"+","-":"−","*":"×","/":"÷"}[c.pendingOp]) : "";
-      html+='<div class="tline num active caret">'+
+      var pend = (!c.justEval && c.pendingOp && blockValueCount()>0) ? ({"+":"+","-":"−","*":"×","/":"÷"}[c.pendingOp]) : "";
+      html+='<div class="tline num active caret" data-n="'+(idx+1)+'">'+
         '<div class="op">'+pend+'</div><div class="val">'+esc(am)+'</div><div class="note">'+esc(window._pendingNote||"")+'</div></div>';
     }
   }
@@ -185,13 +201,11 @@ function render(){
   T.tape.innerHTML=html;
   if(atBottom) T.tape.scrollTop=T.tape.scrollHeight;
 
-  var gt=grandTotal();
-  if(fr.error||gt.error){ T.grand.textContent="Error"; T.gdim.textContent=fr.error||gt.error; }
-  else if(gt.mixed){ T.grand.textContent=fv(gt.last); T.gdim.textContent="mixed — last calc"; }
-  else { T.grand.textContent=fv(gt.acc); T.gdim.textContent=PB.dimName(gt.acc.dim)||"Number"; }
-  T.block.textContent = fr.error ? "…" : fv(fr.acc);
-  T.mem.style.display = c.memory? "inline-block":"none";
-  if(c.memory) T.mem.textContent="M "+fv(c.memory);
+  var err=fr.error||grandTotal().error;
+  if(err && err!==window._lastErr) toast(err);
+  window._lastErr=err||null;
+  var mr=el("mrKey");
+  if(mr){ mr.classList.toggle("has", !!c.memory); mr.title=c.memory? ("Memory: "+fv(c.memory)) : "Recall memory"; }
   var ub=el("undoB"), rb=el("redoB");
   if(ub) ub.disabled = _undo.length===0;
   if(rb) rb.disabled = _redo.length===0;
@@ -228,7 +242,7 @@ function grandTotal(){
 function doEquals(){
   if(c.hasInput()){ c.equals(); }
   var bc=blockValueCount();
-  if(bc>=2){ var tot=c.result().acc; c.steps.push({info:true, sub:true, text:"= "+fv(tot)}); }
+  if(bc>=1){ var tot=c.result().acc; c.steps.push({info:true, sub:true, text:"= "+fv(tot)}); }
   if(c.steps.length>0) c.steps.push({sep:true});
   c.pendingOp="+"; c.justEval=false; c.clearEntry(); editTarget=null;
 }
@@ -340,8 +354,8 @@ function press(k){
     case "bk": if(window._pendingNote){ window._pendingNote=window._pendingNote.slice(0,-1); break; } c.backspace(); break;
     case "ac": c.allClear(); convMode=false; window._pendingNote=""; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null;
       el("roofpop").classList.remove("on"); el("stairpop").classList.remove("on"); closeNote(); break;
-    case "mplus": c.memPlus(); toast("M+ "+fv(c.memory)); break;
-    case "mminus": c.memMinus(); toast("M− "+fv(c.memory)); break;
+    case "mplus": { var mv=lastTotal(); if(!c.memory) c.memory={n:mv.n,dim:mv.dim,u:mv.u}; else { var mr=PB.combine(c.memory,"+",mv); if(!mr.error) c.memory=mr; } toast("M+ "+fv(c.memory)); break; }
+    case "mminus": { var mv2=lastTotal(); if(!c.memory) c.memory={n:-mv2.n,dim:mv2.dim,u:mv2.u}; else { var mr2=PB.combine(c.memory,"-",mv2); if(!mr2.error) c.memory=mr2; } toast("M− "+fv(c.memory)); break; }
     case "rcl": c.recall(); break;
     case "conv": convMode=!convMode; toast(convMode?"Convert: tap a unit":"Convert off"); break;
     case "pitch": { var v=answerVal(); if(v){ roofSetField(roofD,"pitch",v.n); c.clearEntry(); } openRoofPop(); break; }
@@ -377,11 +391,6 @@ el("keys").addEventListener("pointerup",function(e){
   window._bkHeld=false;
 });
 el("keys").addEventListener("pointerleave",function(){ clearTimeout(window._bkT); window._bkHeld=false; },true);
-
-/* statusbar minis (± % M+ M− MR) */
-document.querySelectorAll("#statusbar .mini").forEach(function(b){
-  b.addEventListener("click",function(){ press(b.dataset.k); });
-});
 
 /* toolbar */
 document.querySelectorAll('#toolbar [data-fn]').forEach(function(b){
