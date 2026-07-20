@@ -67,11 +67,10 @@ function applyTheme(name){
 }
 
 /* ===== units: the three unit keys remap in metric ===== */
-var UNIT_SETS = { imp: [["yd","Yds"],["feet","Feet"],["inch","Inch"],["frac","/"]], met: [["m","m"],["cm","cm"],["mm","mm"],["frac","/"]] };
+var UNIT_SETS = { imp: [["feet","Feet"],["inch","Inch"],["frac","/"]], met: [["m","m"],["cm","cm"],["mm","mm"]] };
 function applySystem(){
   var set=UNIT_SETS[SYS];
-  for(var i=0;i<4;i++){ var b=el("u"+i); if(b){ b.dataset.k=set[i][0]; b.textContent=set[i][1]; } }
-  var f=el("u3"); if(f) f.classList.toggle("dim", SYS==="met");   /* fractions are an imperial thing */
+  for(var i=0;i<3;i++){ var b=el("u"+i); if(b){ b.dataset.k=set[i][0]; b.textContent=set[i][1]; } }
   render();
 }
 
@@ -205,8 +204,6 @@ function render(){
   var err=fr.error||grandTotal().error;
   if(err && err!==window._lastErr) toast(err);
   window._lastErr=err||null;
-  var mr=el("mrKey");
-  if(mr){ mr.classList.toggle("has", !!c.memory); mr.title=c.memory? ("Memory: "+fv(c.memory)) : "Recall memory"; }
   var ub=el("undoB"), rb=el("redoB");
   if(ub) ub.disabled = _undo.length===0;
   if(rb) rb.disabled = _redo.length===0;
@@ -395,7 +392,11 @@ el("keys").addEventListener("pointerup",function(e){
   var b=e.target.closest("[data-k]"); if(!b) return;
   if(b.dataset.k==="bk"){
     clearTimeout(window._bkT);
-    if(!window._bkHeld) press("bk");
+    if(!window._bkHeld){
+      var now=Date.now();
+      if(window._bkLast && now-window._bkLast<380){ window._bkLast=0; press("ac"); toast("Cleared"); }
+      else { window._bkLast=now; press("bk"); }
+    }
     window._bkHeld=false;
   } else if(b.dataset.k==="sub"){
     clearTimeout(window._subT);
