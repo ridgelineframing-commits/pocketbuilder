@@ -67,10 +67,11 @@ function applyTheme(name){
 }
 
 /* ===== units: the three unit keys remap in metric ===== */
-var UNIT_SETS = { imp: [["feet","Feet"],["inch","Inch"],["frac","/ frac"]], met: [["m","m"],["cm","cm"],["mm","mm"]] };
+var UNIT_SETS = { imp: [["yd","Yds"],["feet","Feet"],["inch","Inch"],["frac","/"]], met: [["m","m"],["cm","cm"],["mm","mm"],["frac","/"]] };
 function applySystem(){
   var set=UNIT_SETS[SYS];
-  for(var i=0;i<3;i++){ var b=el("u"+i); if(b){ b.dataset.k=set[i][0]; b.textContent=set[i][1]; } }
+  for(var i=0;i<4;i++){ var b=el("u"+i); if(b){ b.dataset.k=set[i][0]; b.textContent=set[i][1]; } }
+  var f=el("u3"); if(f) f.classList.toggle("dim", SYS==="met");   /* fractions are an imperial thing */
   render();
 }
 
@@ -382,15 +383,27 @@ el("keys").addEventListener("pointerdown",function(e){
     window._bkT=setTimeout(function(){ window._bkHeld=true; press("ac"); toast("Cleared"); },550);
     return;
   }
+  if(b.dataset.k==="sub"){
+    window._subHeld=false;
+    clearTimeout(window._subT);
+    window._subT=setTimeout(function(){ window._subHeld=true; press("pm"); toast("± sign"); },550);
+    return;
+  }
   press(b.dataset.k);
 }, {passive:false});
 el("keys").addEventListener("pointerup",function(e){
-  var b=e.target.closest("[data-k]"); if(!b || b.dataset.k!=="bk") return;
-  clearTimeout(window._bkT);
-  if(!window._bkHeld) press("bk");
-  window._bkHeld=false;
+  var b=e.target.closest("[data-k]"); if(!b) return;
+  if(b.dataset.k==="bk"){
+    clearTimeout(window._bkT);
+    if(!window._bkHeld) press("bk");
+    window._bkHeld=false;
+  } else if(b.dataset.k==="sub"){
+    clearTimeout(window._subT);
+    if(!window._subHeld) press("sub");
+    window._subHeld=false;
+  }
 });
-el("keys").addEventListener("pointerleave",function(){ clearTimeout(window._bkT); window._bkHeld=false; },true);
+el("keys").addEventListener("pointerleave",function(){ clearTimeout(window._bkT); window._bkHeld=false; clearTimeout(window._subT); window._subHeld=false; },true);
 
 /* toolbar */
 document.querySelectorAll('#toolbar [data-fn]').forEach(function(b){
