@@ -25,12 +25,6 @@
       <button class="tb" id="undoB" title="Undo (Ctrl+Z)">&#8630; Undo</button>
       <button class="tb" id="redoB" title="Redo (Ctrl+Y)">&#8631; Redo</button>
     </div>
-    <div class="grp">
-      <button class="tb" data-fn="roof">Roof</button>
-      <button class="tb" data-fn="stair">Stair</button>
-      <button class="tb" data-fn="circ">Circle</button>
-      <button class="tb" data-fn="conv">Convert</button>
-    </div>
     <span class="sp"></span>
     <div class="grp">
       <button class="tb" data-fn="share">Share</button>
@@ -67,27 +61,17 @@
         <button class="ks" id="ksCopy" title="Copy tape">&#10697;</button>
       </div>
       <div class="np">
+        <button class="key fn" data-k="hipv">Roof</button><button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button>
         <button class="key ac" data-k="ac">AC</button><button class="key op small" data-k="bk" id="bkKey" title="Backspace &mdash; hold to clear all">&#9003;</button><button class="key op" data-k="div">&divide;</button><button class="key op" data-k="mul">&times;</button>
         <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key op" data-k="sub">&minus;</button>
         <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key op" data-k="add">+</button>
         <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key eq" data-k="eq">=</button>
         <button class="key" data-k="0">0</button><button class="key" data-k="dot">.</button><button class="key op small" data-k="pct">%</button>
+        <button class="key fn small" data-k="rcl" id="mrKey">Rcl</button><button class="key fn small" data-k="mplus">M+</button><button class="key fn small" data-k="mminus">M&minus;</button><button class="key fn small" data-k="pm">&plusmn;</button>
       </div>
     </aside>
   </div>
 
-  <footer id="statusbar">
-    <span class="st-lab">Block</span><span class="st-val" id="blockTot">0</span>
-    <div class="minis">
-      <button class="mini" data-k="pm">&plusmn;</button>
-      <button class="mini" data-k="mplus">M+</button>
-      <button class="mini" data-k="mminus">M&minus;</button>
-      <button class="mini" data-k="rcl">MR</button>
-    </div>
-    <span class="memchip" id="mem"></span>
-    <span class="sp"></span>
-    <span class="st-lab">Grand total</span><span class="st-grand" id="grand">0</span><span class="st-dim" id="gdim"></span>
-  </footer>
 
 </div>
 
