@@ -20,14 +20,26 @@
 <div id="app">
 
   <header id="toolbar">
-    <button class="brand" id="nameBtn">Pocket<span>Builder</span></button>
+    <button class="brand" id="nameBtn" title="Settings">
+      <svg viewBox="140 70 210 340" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M196 196 L214 300"/>
+          <path d="M214 300 L206 356 L232 396 M232 396 L250 396"/>
+          <path d="M214 300 L222 356 L196 396 M196 396 L178 396"/>
+          <path d="M200 214 L170 252 L200 288"/>
+          <path d="M206 214 L246 250 L330 250 L330 300"/>
+        </g>
+        <circle cx="196" cy="152" r="33" fill="none" stroke="currentColor" stroke-width="16"/>
+        <path d="M150 124 a46 46 0 0 1 92 0 z" fill="#f5901f"/>
+        <ellipse cx="196" cy="124" rx="56" ry="12" fill="#dc7413"/>
+      </svg>
+      Pocket<span>Builder</span></button>
     <div class="grp">
       <button class="tb" id="undoB" title="Undo (Ctrl+Z)">&#8630; Undo</button>
       <button class="tb" id="redoB" title="Redo (Ctrl+Y)">&#8631; Redo</button>
     </div>
     <span class="sp"></span>
     <div class="grp">
-      <button class="tb" id="kbBtn" title="Note on this line">abc</button>
       <button class="tb" id="ksCopy" title="Copy tape">&#10697;</button>
       <button class="tb" data-fn="share">Share</button>
       <button class="tb" data-fn="save">Save</button>
@@ -50,10 +62,14 @@
         <div id="staircells"></div>
         <div class="tpbtns"><button class="btn" id="stairToTape">&rarr; Tape</button></div>
       </div>
-      <div class="notebar" id="noteBar"><span class="nlab">Note</span><input id="noteInput" type="text" placeholder="label this line&#8230;" autocomplete="off" autocorrect="off" autocapitalize="sentences"><button class="nbtn" id="noteDone">Done</button></div>
     </div>
 
     <aside id="keys">
+      <div class="notestrip" id="noteBar">
+        <button class="ns-lab" id="kbBtn">abc</button>
+        <input id="noteInput" type="text" placeholder="tap abc to note this line&#8230;" autocomplete="off" autocorrect="off" autocapitalize="sentences">
+        <button class="nbtn" id="noteDone">Done</button>
+      </div>
       <div class="np">
         <button class="key fn" data-k="hipv">Roof</button><button class="key fn" data-k="stair">Stair</button><button class="key fn" data-k="circ">Circ</button><button class="key fn" data-k="conv">Conv</button>
         <button class="key unit" id="u0" data-k="feet">Feet</button><button class="key unit" id="u1" data-k="inch">Inch</button><button class="key unit" id="u2" data-k="frac">/</button><button class="key op small" data-k="bk" id="bkKey" title="Backspace &mdash; double-tap or hold to clear all">&#9003;</button>
@@ -70,7 +86,18 @@
 
 <div class="scrim" id="menu"><div class="sheet">
   <h4>PocketBuilder</h4>
-  <div class="mrow"><div class="ml">Theme</div><div class="seg" id="themeSeg"><button data-th="auto">Auto</button><button data-th="light">Light</button><button data-th="dark">Dark</button><button data-th="wood">Night Wood</button></div></div>
+  <div class="mrow"><div class="ml">Text size</div><div class="seg" id="sizeSeg"><button data-sz="s">Small</button><button data-sz="m">Medium</button><button data-sz="l">Large</button><button data-sz="x">XL</button></div></div>
+  <div class="mrow"><div class="ml">Colors</div><div class="clrgrid" id="clrGrid">
+    <label class="clr">Chrome<input type="color" data-c="chrome"></label>
+    <label class="clr">Keys<input type="color" data-c="key"></label>
+    <label class="clr">Op keys<input type="color" data-c="op"></label>
+    <label class="clr">Ft/In<input type="color" data-c="unit"></label>
+    <label class="clr">Solvers<input type="color" data-c="fn"></label>
+    <label class="clr">Accent<input type="color" data-c="accent"></label>
+    <label class="clr">Paper<input type="color" data-c="paper"></label>
+    <label class="clr">Text<input type="color" data-c="ptxt"></label>
+  </div></div>
+  <div class="mrow"><div class="seg"><button id="woodBtn">Night Wood</button><button id="resetBtn">Reset colors</button></div></div>
   <div class="mrow"><div class="ml">Units</div><div class="seg" id="unitSeg"><button data-u="imp">Imperial</button><button data-u="met">Metric</button></div></div>
   <div class="mrow"><div class="ml">Fraction precision</div><div class="seg" id="fracSeg"><button data-fr="8">1/8</button><button data-fr="16">1/16</button><button data-fr="32">1/32</button></div></div>
   <div class="mrow"><div class="ml">Paper</div><div class="seg" id="paperSeg" style="gap:10px">
