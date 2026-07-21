@@ -60,10 +60,59 @@ function woodTex(){
   return 'url("data:image/svg+xml;base64,'+btoa(svg)+'")';
 }
 function applyTheme(name){
-  THEME=(["light","dark","wood"].indexOf(name)>=0)?name:"auto";
+  THEME=(name==="wood")?"wood":"auto";
   var de=document.documentElement;
   if(THEME==="auto") de.removeAttribute("data-theme"); else de.setAttribute("data-theme",THEME);
   if(THEME==="wood"){ try{ if(!window._woodimg) window._woodimg=woodTex(); de.style.setProperty("--woodimg",window._woodimg); }catch(e){} }
+}
+
+/* ===== text size (ledger row height / fonts) ===== */
+var TSIZE="m";
+var SIZES={ s:[24,13,11], m:[28,15,12.5], l:[33,18,14.5], x:[38,21,17] };
+function applySize(name){
+  TSIZE=SIZES[name]?name:"m"; var z=SIZES[TSIZE], r=document.documentElement.style;
+  r.setProperty("--rh",z[0]+"px"); r.setProperty("--tfs",z[1]+"px"); r.setProperty("--nfs",z[2]+"px");
+}
+
+/* ===== custom colors: 8 picks drive every token (shades + contrast derived) ===== */
+var COLORS=null;
+var CLRVARS=["--chrome","--chrome2","--line","--ink","--inkmut","--stripbg","--keybg","--keytxt",
+  "--opkey","--eqkey","--unitkey","--unittxt","--fnkey","--fntxt","--accent","--accent2","--sel"];
+function hx(c){ c=(c||"#888888").replace("#",""); return [parseInt(c.substr(0,2),16)||0,parseInt(c.substr(2,2),16)||0,parseInt(c.substr(4,2),16)||0]; }
+function hexOf(r,g,b){ function p(n){ n=Math.max(0,Math.min(255,Math.round(n))); return (n<16?"0":"")+n.toString(16); } return "#"+p(r)+p(g)+p(b); }
+function mixc(a,b,t){ var A=hx(a),B=hx(b); return hexOf(A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t, A[2]+(B[2]-A[2])*t); }
+function lum(c){ var v=hx(c); return .299*v[0]+.587*v[1]+.114*v[2]; }
+function txtOn(c){ return lum(c)>140 ? "#20222a" : "#f2eee2"; }
+var CLR_DEFAULT={chrome:"#e9e4d8",key:"#f7f4ec",op:"#c3ccd2",unit:"#f0d87a",fn:"#2e3a4c",accent:"#b2241a",paper:"#ffffff",ptxt:"#1d1f22"};
+function applyColors(){
+  var r=document.documentElement.style;
+  if(!COLORS){ CLRVARS.forEach(function(v){ r.removeProperty(v); }); return; }
+  var C=COLORS;
+  r.setProperty("--chrome",C.chrome);
+  r.setProperty("--chrome2",mixc(C.chrome,"#000000",.08));
+  r.setProperty("--line",mixc(C.chrome,txtOn(C.chrome),.22));
+  r.setProperty("--ink",txtOn(C.chrome));
+  r.setProperty("--inkmut",mixc(txtOn(C.chrome),C.chrome,.45));
+  r.setProperty("--stripbg",mixc(C.chrome,"#000000",.6));
+  r.setProperty("--keybg",C.key); r.setProperty("--keytxt",txtOn(C.key));
+  r.setProperty("--opkey",C.op); r.setProperty("--eqkey",mixc(C.op,txtOn(C.op),.18));
+  r.setProperty("--unitkey",C.unit); r.setProperty("--unittxt",txtOn(C.unit));
+  r.setProperty("--fnkey",C.fn); r.setProperty("--fntxt",txtOn(C.fn));
+  r.setProperty("--accent",C.accent); r.setProperty("--accent2",mixc(C.accent,"#ffffff",.25));
+  r.setProperty("--sel",mixc(C.unit,C.key,.55));
+  PAPERS.custom={paper:C.paper, line:mixc(C.ptxt,C.paper,.86), margin:mixc(C.accent,C.paper,.6),
+    txt:C.ptxt, mut:mixc(C.ptxt,C.paper,.5), note:mixc(C.ptxt,C.paper,.32)};
+  applyPaper("custom");
+}
+function currentPicks(){
+  var cs=getComputedStyle(document.documentElement);
+  function gv(v,fb){ var x=(cs.getPropertyValue(v)||"").trim(); return /^#[0-9a-fA-F]{6}$/.test(x)?x:fb; }
+  return COLORS ? COLORS : {
+    chrome:gv("--chrome",CLR_DEFAULT.chrome), key:gv("--keybg",CLR_DEFAULT.key),
+    op:gv("--opkey",CLR_DEFAULT.op), unit:gv("--unitkey",CLR_DEFAULT.unit),
+    fn:gv("--fnkey",CLR_DEFAULT.fn), accent:gv("--accent",CLR_DEFAULT.accent),
+    paper:gv("--paper",CLR_DEFAULT.paper), ptxt:gv("--papertxt",CLR_DEFAULT.ptxt)
+  };
 }
 
 /* ===== units: the three unit keys remap in metric ===== */
@@ -174,7 +223,7 @@ function render(){
     if(s.sep){ html+='<div class="tline sep" data-i="'+k+'"></div>'; idx=0; continue; }
     if(s.info){
       if(s.sub){ html+='<div class="tline subtotal" data-i="'+k+'"><div class="op">=</div><div class="val">'+esc((s.text||"").replace(/^= /,""))+'</div><div class="note"></div><span class="cpy" title="Copy value">⧉</span></div>'; continue; }
-      if(s.vtext){ html+='<div class="tline calcnote'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="op"></div><div class="val">'+esc(s.vtext)+'</div><div class="note">'+esc(s.text||"")+'</div><span class="cpy" title="Copy value">⧉</span></div>'; continue; }
+      if(s.vtext!=null){ html+='<div class="tline calcnote'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="op"></div><div class="val">'+esc(s.vtext)+'</div><div class="note">'+esc(s.text||"")+'</div>'+(s.vtext?'<span class="cpy" title="Copy value">⧉</span>':'')+'</div>'; continue; }
       html+='<div class="tline prose'+(editTarget===k?' sel':'')+'" data-i="'+k+'"><div class="txt">'+esc(s.text)+'</div></div>'; continue;
     }
     idx++;
@@ -473,7 +522,8 @@ function openNote(){
   var st = (editTarget!=null) ? c.steps[editTarget] : null;
   if(st && (st.sep || st.sub)){ toast("Pick a value or text line"); return false; }
   if(!st){
-    c.steps.push({info:true,text:""});
+    /* free-standing note: lands in the right-hand note column like every other note */
+    c.steps.push({info:true,vtext:"",text:""});
     editTarget=c.steps.length-1; st=c.steps[editTarget]; render();
   }
   var ni=el("noteInput");
@@ -484,7 +534,9 @@ function openNote(){
 }
 function closeNote(){ el("noteBar").classList.remove("on"); var ni=el("noteInput"); if(ni) ni.blur();
   if(editTarget!=null && c.steps[editTarget]){ var st=c.steps[editTarget];
-    if(st.info && !st.sub && !st.vtext && !(st.text||"").trim()){ c.steps.splice(editTarget,1); editTarget=null; render(); } } }
+    if(st.info && !st.sub && !(st.text||"").trim() && !(st.vtext||"").trim()){ c.steps.splice(editTarget,1); } }
+  /* done noting -> back to normal entry, never stuck editing the note line */
+  editTarget=null; c.clearEntry(); render(); }
 el("kbBtn").addEventListener("click",function(){ pushUndo(); openNote(); });
 el("ksCopy").addEventListener("click",function(){ if(window.copyTape) copyTape(); });
 el("noteDone").addEventListener("click",closeNote);
@@ -495,27 +547,45 @@ el("noteInput").addEventListener("keydown",function(e){ e.stopPropagation(); if(
 
 /* ---------- settings ---------- */
 function segOn(segId, attr, val){ var seg=el(segId); for(var i=0;i<seg.children.length;i++){ var b=seg.children[i]; b.classList.toggle("on", b.getAttribute(attr)===String(val)); } }
-function openMenu(){ segOn("themeSeg","data-th",THEME); segOn("unitSeg","data-u",SYS); segOn("fracSeg","data-fr",FRAC); segOn("paperSeg","data-pa",PAPER); el("menu").classList.add("on"); }
+function openMenu(){
+  segOn("sizeSeg","data-sz",TSIZE); segOn("unitSeg","data-u",SYS); segOn("fracSeg","data-fr",FRAC); segOn("paperSeg","data-pa",PAPER);
+  var picks=currentPicks();
+  document.querySelectorAll("#clrGrid input[type=color]").forEach(function(i){ i.value=picks[i.dataset.c]||"#888888"; });
+  el("menu").classList.add("on");
+}
 function closeMenu(){ el("menu").classList.remove("on"); }
 el("nameBtn").addEventListener("click",openMenu);
 el("menuBtn").addEventListener("click",openMenu);
 el("menuClose").addEventListener("click",closeMenu);
 el("menu").addEventListener("click",function(e){ if(e.target.id==="menu") closeMenu(); });
-el("themeSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return;
-  applyTheme(b.dataset.th);
-  /* picking Night Wood on plain white paper flips the paper to coffee for the full night look */
-  if(THEME==="wood" && PAPER==="white"){ applyPaper("coffee"); segOn("paperSeg","data-pa",PAPER); }
-  saveSettings(); segOn("themeSeg","data-th",THEME); render(); });
+el("sizeSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return;
+  applySize(b.dataset.sz); saveSettings(); segOn("sizeSeg","data-sz",TSIZE); render(); });
+el("clrGrid").addEventListener("input",function(e){
+  var i=e.target.closest("input[type=color]"); if(!i) return;
+  if(!COLORS) COLORS=currentPicks();
+  COLORS[i.dataset.c]=i.value;
+  applyTheme("auto"); applyColors(); saveSettings();
+});
+el("woodBtn").addEventListener("click",function(){
+  COLORS=null; applyColors(); applyTheme("wood");
+  if(PAPER==="white"||PAPER==="custom"){ applyPaper("coffee"); segOn("paperSeg","data-pa",PAPER); }
+  saveSettings(); openMenu(); toast("Night Wood");
+});
+el("resetBtn").addEventListener("click",function(){
+  COLORS=null; applyColors(); applyTheme("auto");
+  if(PAPER==="custom") applyPaper("white");
+  segOn("paperSeg","data-pa",PAPER); saveSettings(); openMenu(); toast("Colors reset");
+});
 el("unitSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; SYS=b.dataset.u; saveSettings(); applySystem(); segOn("unitSeg","data-u",SYS); });
 el("fracSeg").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; FRAC=parseInt(b.dataset.fr,10); saveSettings(); segOn("fracSeg","data-fr",FRAC); render(); });
-el("paperSeg").addEventListener("click",function(e){ var b=e.target.closest(".swatch"); if(!b)return; applyPaper(b.dataset.pa); saveSettings(); segOn("paperSeg","data-pa",PAPER); });
+el("paperSeg").addEventListener("click",function(e){ var b=e.target.closest(".swatch"); if(!b)return; if(COLORS){ delete PAPERS.custom; } applyPaper(b.dataset.pa); saveSettings(); segOn("paperSeg","data-pa",PAPER); });
 el("mNew").addEventListener("click",function(){ if(c.steps.length && !confirm("Start a new tape?")) return; pushUndo(); c.allClear(); convMode=false; roofD=makeRoofD(); stairD=makeStairD(); editTarget=null; closeMenu(); render(); toast("New tape"); });
 el("mSave").addEventListener("click",function(){ downloadTape(); });
 
 /* roof/stair -> tape — one item per line */
 function roofToTape(){ var d=roofD; if(d.rise==null){ toast("Enter two of pitch/run/rise/diag"); return; }
   pushUndo();
-  c.steps.push({info:true,text:"ROOF — "+PB.fmtNum(d.pitch,2)+"/12 pitch, "+PB.fmtNum(d.angle,1)+"°"});
+  c.steps.push({info:true,vtext:"",text:"ROOF — "+PB.fmtNum(d.pitch,2)+"/12 pitch, "+PB.fmtNum(d.angle,1)+"°"});
   c.steps.push({info:true,vtext:fvL(d.rise),text:"rise"});
   c.steps.push({info:true,vtext:fvL(d.run),text:"run"});
   c.steps.push({info:true,vtext:fvL(d.diag),text:"common rafter"});
@@ -523,7 +593,7 @@ function roofToTape(){ var d=roofD; if(d.rise==null){ toast("Enter two of pitch/
   el("roofpop").classList.remove("on"); render(); toast("Sent to tape"); }
 function stairToTape(){ var d=stairD; if(d.rise==null){ toast("Enter total rise"); return; }
   pushUndo();
-  c.steps.push({info:true,text:"STAIRS"});
+  c.steps.push({info:true,vtext:"",text:"STAIRS"});
   c.steps.push({info:true,vtext:fvL(d.rise),text:"total rise"});
   c.steps.push({info:true,vtext:fvL(d.riser),text:d.n+" risers"});
   c.steps.push({info:true,vtext:fvIn(d.tread),text:d.treads+" treads"});
@@ -571,12 +641,12 @@ function downloadTape(){
    PocketBuilder name and are kept as-is on purpose — renaming them would orphan
    every existing user's saved tapes and settings. */
 function save(){ try{ localStorage.setItem("buildtally", JSON.stringify({steps:c.steps,mem:c.memory,roofD:roofD,stairD:stairD})); }catch(e){} }
-function saveSettings(){ try{ localStorage.setItem("bt_set", JSON.stringify({SYS:SYS,FRAC:FRAC,PAPER:PAPER,THEME:THEME})); }catch(e){} }
+function saveSettings(){ try{ localStorage.setItem("bt_set", JSON.stringify({SYS:SYS,FRAC:FRAC,PAPER:PAPER,THEME:THEME,TSIZE:TSIZE,COLORS:COLORS})); }catch(e){} }
 function load(){
-  try{ var st=JSON.parse(localStorage.getItem("bt_set")||"null"); if(st){ SYS=st.SYS||"imp"; FRAC=st.FRAC||16; PAPER=st.PAPER||"white"; THEME=st.THEME||"auto"; } }catch(e){}
+  try{ var st=JSON.parse(localStorage.getItem("bt_set")||"null"); if(st){ SYS=st.SYS||"imp"; FRAC=st.FRAC||16; PAPER=st.PAPER||"white"; THEME=(st.THEME==="wood")?"wood":"auto"; TSIZE=st.TSIZE||"m"; COLORS=st.COLORS||null; } }catch(e){}
   try{ var d=JSON.parse(localStorage.getItem("buildtally")||"null"); if(d){ c.steps=d.steps||[]; c.memory=d.mem||null; c.justEval=true; if(d.roofD)roofD=d.roofD; if(d.stairD)stairD=d.stairD; } }catch(e){}
 }
-load(); applyPaper(PAPER); applyTheme(THEME);
+load(); applyPaper(PAPER); applyTheme(THEME); applySize(TSIZE); if(COLORS) applyColors();
 
 /* ---------- tabs: multiple tapes on every device ---------- */
 (function(){
